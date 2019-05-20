@@ -1,0 +1,27 @@
+// 2017-2019 Puny Human
+
+#pragma once
+
+#include "ActivityNode_Base.h"
+#include "ActivityNode_Objective.generated.h"
+
+class UActivityObjective;
+
+UCLASS()
+class UActivityNode_Objective : public UActivityNode_Base
+{
+	GENERATED_BODY()
+public:
+	UActivityNode_Objective(const FObjectInitializer& ObjectInitializer);
+
+	virtual void AllocateDefaultPins() override;  
+	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;	  
+
+	UActivityObjective* GetObjective();
+
+	void CreateAddTrackerSubMenu(class FMenuBuilder& MenuBuilder, UEdGraph* Graph) const;
+	void AddContextMenuActionsTracker(const FGraphNodeContextMenuBuilder& Context) const;
+
+	virtual void OnSubNodeAdded(UAIGraphNode* SubNode);
+	virtual void OnSubNodeRemoved(UAIGraphNode* SubNode);
+};

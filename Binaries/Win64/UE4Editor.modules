@@ -1,0 +1,8 @@
+{
+	"BuildId": "1bc35575-f1c3-4e5f-a92a-17f382c52fd9",
+	"Modules": 
+	{
+		"ActivitiesPlugin": "UE4Editor-ActivitiesPlugin.dll",
+		"ActivitiesPluginEditor": "UE4Editor-ActivitiesPluginEditor.dll"
+	}
+}
