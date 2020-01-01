@@ -53,7 +53,8 @@ FActivityEditor::~FActivityEditor()
 
 void FActivityEditor::InitActivityEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UActivity* ActivityData)
 {
-	FAssetEditorManager::Get().CloseOtherEditors(ActivityData, this);
+	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->CloseOtherEditors(ActivityData, this);
+	//FAssetEditorManager::Get().CloseOtherEditors(ActivityData, this);
 	ActivityBeingEdited = ActivityData;
 
 	UEdGraph_Activity* ActivityGraph = Cast<UEdGraph_Activity>(ActivityData->EditorGraph);
@@ -182,33 +183,33 @@ void FActivityEditor::OnSelectedNodesChanged(const TSet<class UObject*>& NewSele
 
 }
 
-void FActivityEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& TabManager)
+void FActivityEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
 {
-	WorkspaceMenuCategory = TabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_ActivityEditor", "Activity Editor"));
+	WorkspaceMenuCategory = InTabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_ActivityEditor", "Activity Editor"));
 	auto WorkspaceMenuCategoryRef = WorkspaceMenuCategory.ToSharedRef();
 
-	FAssetEditorToolkit::RegisterTabSpawners(TabManager);
+	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
 
-	TabManager->RegisterTabSpawner(FActivityEditorTabs::Details, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_Details))
+	InTabManager->RegisterTabSpawner(FActivityEditorTabs::Details, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_Details))
 		.SetDisplayName(LOCTEXT("DetailsTab_Label", "Details"))
 		.SetGroup(WorkspaceMenuCategoryRef);
 
-	TabManager->RegisterTabSpawner(FActivityEditorTabs::Actions, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_Actions))
+	InTabManager->RegisterTabSpawner(FActivityEditorTabs::Actions, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_Actions))
 		.SetDisplayName(LOCTEXT("ActionsTab_Label", "Actions"))
 		.SetGroup(WorkspaceMenuCategoryRef);
 
-	TabManager->RegisterTabSpawner(FActivityEditorTabs::GraphEditor, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_GraphEditor))
+	InTabManager->RegisterTabSpawner(FActivityEditorTabs::GraphEditor, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_GraphEditor))
 		.SetDisplayName(LOCTEXT("GraphEditorTab_Label", "Graph Editor"))
 		.SetGroup(WorkspaceMenuCategoryRef);
 }
 
-void FActivityEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& TabManager)
+void FActivityEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
 {
-	FAssetEditorToolkit::UnregisterTabSpawners(TabManager);
+	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
 
-	TabManager->UnregisterTabSpawner(FActivityEditorTabs::Details);
-	TabManager->UnregisterTabSpawner(FActivityEditorTabs::Actions);
-	TabManager->UnregisterTabSpawner(FActivityEditorTabs::GraphEditor);
+	InTabManager->UnregisterTabSpawner(FActivityEditorTabs::Details);
+	InTabManager->UnregisterTabSpawner(FActivityEditorTabs::Actions);
+	InTabManager->UnregisterTabSpawner(FActivityEditorTabs::GraphEditor);
 }
 
 TSharedRef<SDockTab> FActivityEditor::SpawnTab_GraphEditor(const FSpawnTabArgs& Args)

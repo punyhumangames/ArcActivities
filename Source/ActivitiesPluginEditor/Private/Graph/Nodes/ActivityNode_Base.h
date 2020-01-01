@@ -55,6 +55,6 @@ public:
 	UClass* TopSubNodeClass;
 
 	void CreateAddServicesSubMenu(class FMenuBuilder& MenuBuilder, UEdGraph* Graph) const;
-	void AddContextMenuActionsServices(const FGraphNodeContextMenuBuilder& Context) const;
+	void AddContextMenuActionsServices(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const;
 
 };

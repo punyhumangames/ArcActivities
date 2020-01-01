@@ -7,6 +7,7 @@
 #include "ActivityNode_ObjectiveTracker.h"
 
 #include "AIGraphTypes.h"
+#include "ToolMenus.h"
 
 #include "SGraphEditorActionMenuAI.h"
 
@@ -30,9 +31,9 @@ void UActivityNode_Objective::AllocateDefaultPins()
 	//No Pins
 }
 
-void UActivityNode_Objective::GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const
+void UActivityNode_Objective::GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const
 {
-	AddContextMenuActionsTracker(Context);
+	AddContextMenuActionsTracker(Menu, Context);
 }
 
 UActivityObjective* UActivityNode_Objective::GetObjective()
@@ -52,12 +53,13 @@ void UActivityNode_Objective::CreateAddTrackerSubMenu(class FMenuBuilder& MenuBu
 	MenuBuilder.AddWidget(Menu, FText(), true);
 }
 
-void UActivityNode_Objective::AddContextMenuActionsTracker(const FGraphNodeContextMenuBuilder& Context) const
+void UActivityNode_Objective::AddContextMenuActionsTracker(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const
 {
-	Context.MenuBuilder->AddSubMenu(
+	FToolMenuSection& Section = Menu->AddSection("Trackers");
+	Section.AddSubMenu("AddTracker",
 		LOCTEXT("AddTracker", "Add Tracker..."),
 		LOCTEXT("AddTrackerTooltip", "Adds new Tracker as a subnode"),
-		FNewMenuDelegate::CreateUObject(this, &UActivityNode_Objective::CreateAddTrackerSubMenu, (UEdGraph*)Context.Graph));
+		FNewMenuDelegate::CreateUObject(this, &UActivityNode_Objective::CreateAddTrackerSubMenu, (UEdGraph*)Context->Graph));
 }
 
 void UActivityNode_Objective::OnSubNodeAdded(UAIGraphNode* SubNode)
