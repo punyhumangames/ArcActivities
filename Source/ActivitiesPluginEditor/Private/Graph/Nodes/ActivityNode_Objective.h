@@ -14,13 +14,13 @@ class UActivityNode_Objective : public UActivityNode_Base
 public:
 	UActivityNode_Objective(const FObjectInitializer& ObjectInitializer);
 
-	virtual void AllocateDefaultPins() override;  
-	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;	  
+	virtual void AllocateDefaultPins() override;
+	virtual void GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
 
 	UActivityObjective* GetObjective();
 
 	void CreateAddTrackerSubMenu(class FMenuBuilder& MenuBuilder, UEdGraph* Graph) const;
-	void AddContextMenuActionsTracker(const FGraphNodeContextMenuBuilder& Context) const;
+	void AddContextMenuActionsTracker(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const;
 
 	virtual void OnSubNodeAdded(UAIGraphNode* SubNode);
 	virtual void OnSubNodeRemoved(UAIGraphNode* SubNode);
