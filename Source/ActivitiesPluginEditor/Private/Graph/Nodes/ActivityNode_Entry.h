@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ActivityNode_Base.h"
+#include "EdGraph/EdGraphNode.h"
 #include "ActivityNode_Entry.generated.h"
 
 class UActivity;
@@ -17,7 +18,7 @@ public:
 	// Begin UEdGraphNode interface.
 	virtual void AllocateDefaultPins() override;
 	virtual const FSlateBrush* GetNodeIcon() const override;
-	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
+	virtual void GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
 	// End UEdGraphNode interface.	 
 	
 	virtual UObject* GetNodeInstance() override;

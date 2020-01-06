@@ -38,7 +38,7 @@ void FAssetTypeActions_Activity::OpenAssetEditor(const TArray<UObject*>& InObjec
 	{
 		if (UActivity* Activity = Cast<UActivity>(Object))
 		{
-			FActivityEditor* ExistingInstance = static_cast<FActivityEditor*>(FAssetEditorManager::Get().FindEditorForAsset(Object, false));
+			FActivityEditor* ExistingInstance = static_cast<FActivityEditor*>(GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->FindEditorForAsset(Object, false));
 			if (ExistingInstance)
 			{
 				ExistingInstance->InitActivityEditor(Mode, EditWithinLevelEditor, Activity);

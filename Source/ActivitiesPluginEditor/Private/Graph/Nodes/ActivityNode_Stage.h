@@ -19,7 +19,8 @@ public:
 	// Begin UEdGraphNode interface.
 	virtual void AllocateDefaultPins() override;
 	virtual const FSlateBrush* GetNodeIcon() const override;
-	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
+	virtual void GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
+
 	// End UEdGraphNode interface.
 
 	virtual void PinConnectionListChanged(UEdGraphPin* Pin) override;
