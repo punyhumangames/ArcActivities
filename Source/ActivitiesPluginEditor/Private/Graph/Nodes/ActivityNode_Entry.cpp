@@ -26,9 +26,9 @@ const FSlateBrush* UActivityNode_Entry::GetNodeIcon() const
 	return Super::GetNodeIcon();
 }
 
-void UActivityNode_Entry::GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const
+void UActivityNode_Entry::GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const
 {
-	AddContextMenuActionsServices(Context);
+	AddContextMenuActionsServices(Menu, Context);
 }
 
 UObject* UActivityNode_Entry::GetNodeInstance()

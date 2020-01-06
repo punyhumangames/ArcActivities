@@ -30,6 +30,7 @@ namespace UnrealBuildTool.Rules
 					"KismetWidgets",
 					"GraphEditor",
                     "AIGraph",
+                    "ToolMenus",
                 });
 
 			PrivateDependencyModuleNames.AddRange(

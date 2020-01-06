@@ -13,6 +13,8 @@
 #include "Graph/EdGraphSchema_Activity.h"
 #include "AIGraphTypes.h"
 
+#include "ToolMenus.h"
+
 #include "ActivityNode_Objective.h"
 #include "ActivityNode_Service.h"
 
@@ -44,23 +46,21 @@ const FSlateBrush* UActivityNode_Stage::GetNodeIcon() const
 	return Super::GetNodeIcon();
 }
 
-void UActivityNode_Stage::GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const
+
+void UActivityNode_Stage::GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const
 {
-	Super::GetContextMenuActions(Context);
+	Super::GetNodeContextMenuActions(Menu, Context);
 
-	Context.MenuBuilder->BeginSection("StageNodeActions", LOCTEXT("StageNodeActionsHeader", "Actions"));
+	FToolMenuSection& Section = Menu->AddSection("StageNodeActions", LOCTEXT("StageNodeActionsHeader", "Actions"));
 	{
-		UEdGraph* Graph = const_cast<UEdGraph*>(Context.Graph);
-
-		Context.MenuBuilder->AddMenuEntry(LOCTEXT("StageNodeAddObjective", "Add Objective"),
+		UEdGraph* Graph = const_cast<UEdGraph*>(Context->Graph);
+		Section.AddMenuEntry("AddObjective", LOCTEXT("StageNodeAddObjective", "Add Objective"),
 			FText(),
 			FSlateIcon(),
-			FUIAction(FExecuteAction::CreateUObject(this, &UActivityNode_Stage::AddObjectiveNode, Graph))
-		);
+			FUIAction(FExecuteAction::CreateUObject(this, &UActivityNode_Stage::AddObjectiveNode, Graph)));
 	}
-	Context.MenuBuilder->EndSection();
-
-	AddContextMenuActionsServices(Context);
+	
+	AddContextMenuActionsServices(Menu, Context);
 }
 
 void UActivityNode_Stage::PinConnectionListChanged(UEdGraphPin* Pin)

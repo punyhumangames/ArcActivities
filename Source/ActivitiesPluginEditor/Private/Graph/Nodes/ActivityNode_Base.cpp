@@ -12,6 +12,8 @@
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "SGraphEditorActionMenuAI.h"
 
+#include "ToolMenus.h"
+
 #include "Graph/EdGraphSchema_Activity.h"
 
 #define LOCTEXT_NAMESPACE "ActivityNode"
@@ -230,12 +232,14 @@ void UActivityNode_Base::CreateAddServicesSubMenu(class FMenuBuilder& MenuBuilde
 	MenuBuilder.AddWidget(Menu, FText(), true);
 }
 
-void UActivityNode_Base::AddContextMenuActionsServices(const FGraphNodeContextMenuBuilder& Context) const
+
+void UActivityNode_Base::AddContextMenuActionsServices(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const
 {
-	Context.MenuBuilder->AddSubMenu(
+	FToolMenuSection& Section = Menu->AddSection("Services");
+	Section.AddSubMenu("AddService",
 		LOCTEXT("AddService", "Add Service..."),
 		LOCTEXT("AddServiceTooltip", "Adds new service as a subnode"),
-		FNewMenuDelegate::CreateUObject(this, &UActivityNode_Base::CreateAddServicesSubMenu, (UEdGraph*)Context.Graph));
+		FNewMenuDelegate::CreateUObject(this, &UActivityNode_Base::CreateAddServicesSubMenu, (UEdGraph*)Context->Graph));
 }
 
 #undef LOCTEXT_NAMESPACE
