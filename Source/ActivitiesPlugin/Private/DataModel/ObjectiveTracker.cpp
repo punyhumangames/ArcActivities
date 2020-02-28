@@ -1,7 +1,7 @@
 // 2017-2018 Puny Human Games
 
 #include "ActivitiesPlugin.h"
-#include "ObjectiveTracker.h"
+#include "DataModel/ObjectiveTracker.h"
 
 UActivityTask_ObjectiveTracker::UActivityTask_ObjectiveTracker(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

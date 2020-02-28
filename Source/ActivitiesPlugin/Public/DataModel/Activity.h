@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataAsset.h"
 #include "Activity.generated.h"
 
 class UActivityStage;
 class UActivityTask_StageService;
+class UEdGraph;
 
 /**
  * 

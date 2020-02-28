@@ -1,7 +1,7 @@
 // 2017-2018 Puny Human Games
 
 #include "ActivitiesPlugin.h"
-#include "ActivityTask_Base.h"
+#include "DataModel/ActivityTask_Base.h"
 
 
 

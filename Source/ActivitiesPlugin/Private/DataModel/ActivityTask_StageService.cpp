@@ -1,7 +1,7 @@
 // 2017-2018 Puny Human Games
 
 #include "ActivitiesPlugin.h"
-#include "ActivityTask_StageService.h"
+#include "DataModel/ActivityTask_StageService.h"
 
 
 UActivityTask_StageService::UActivityTask_StageService(const FObjectInitializer& ObjectInitializer)

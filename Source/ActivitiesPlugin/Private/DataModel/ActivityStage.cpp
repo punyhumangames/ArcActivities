@@ -1,8 +1,8 @@
 // 2017-2018 Puny Human Games
 
 #include "ActivitiesPlugin.h"
-#include "ActivityStage.h"
-#include "Activity.h"
+#include "DataModel/ActivityStage.h"
+#include "DataModel/Activity.h"
 
 
 UActivityStage::UActivityStage(const FObjectInitializer& ObjectInitializer)
