@@ -1,6 +1,5 @@
 // 2017-2019 Puny Human
 
-#include "ActivitiesPluginEditor.h"
 #include "EdGraphSchema_Activity.h"
 #include "EdGraph/EdGraphNode.h"
 #include "EdGraph/EdGraph.h"

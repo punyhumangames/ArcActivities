@@ -1,6 +1,5 @@
 // 2017-2019 Puny Human
 
-#include "ActivitiesPluginEditor.h"
 #include "AssetTypeActions_ObjectiveTracker.h"
 #include "ObjectiveTracker.h"
 

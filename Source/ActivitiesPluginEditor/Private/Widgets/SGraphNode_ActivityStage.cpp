@@ -1,6 +1,5 @@
 // 2017-2019 Puny Human
 
-#include "ActivitiesPluginEditor.h"
 #include "SGraphNode_ActivityStage.h"
 
 #include "Types/SlateStructs.h"

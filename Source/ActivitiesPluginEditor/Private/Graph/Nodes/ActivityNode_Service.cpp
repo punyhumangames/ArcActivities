@@ -1,6 +1,5 @@
 // 2017-2019 Puny Human
 
-#include "ActivitiesPluginEditor.h"
 #include "ActivityNode_Service.h"
 #include "DataModel/ActivityTask_StageService.h"
 
