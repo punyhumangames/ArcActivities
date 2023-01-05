@@ -1,7 +1,7 @@
 // 2017-2019 Puny Human
 
 #include "ActivityNode_Objective.h"
-#include "ActivityObjective.h"
+#include "DataModel/ActivityObjective.h"
 #include "DataModel/ObjectiveTracker.h"
 #include "ActivityNode_ObjectiveTracker.h"
 

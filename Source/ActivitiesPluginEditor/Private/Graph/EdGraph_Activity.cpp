@@ -1,6 +1,6 @@
 // 2017-2019 Puny Human
 
-#include "Activity.h"
+#include "DataModel/Activity.h"
 #include "EdGraphSchema_Activity.h"
 #include "GraphEditAction.h"
 #include "Nodes/ActivityNode_Entry.h"

@@ -17,8 +17,8 @@
 #include "ActivityNode_Objective.h"
 #include "ActivityNode_Service.h"
 
-#include "Activity.h"
-#include "ActivityStage.h"
+#include "DataModel/Activity.h"
+#include "DataModel/ActivityStage.h"
 
 #define LOCTEXT_NAMESPACE "ActivityNode"
 
@@ -52,11 +52,11 @@ void UActivityNode_Stage::GetNodeContextMenuActions(class UToolMenu* Menu, class
 
 	FToolMenuSection& Section = Menu->AddSection("StageNodeActions", LOCTEXT("StageNodeActionsHeader", "Actions"));
 	{
-		UEdGraph* Graph = const_cast<UEdGraph*>(Context->Graph);
+		UEdGraph* Graph = const_cast<UEdGraph*>(Context->Graph.Get());
 		Section.AddMenuEntry("AddObjective", LOCTEXT("StageNodeAddObjective", "Add Objective"),
 			FText(),
 			FSlateIcon(),
-			FUIAction(FExecuteAction::CreateUObject(this, &UActivityNode_Stage::AddObjectiveNode, Graph)));
+			FUIAction(FExecuteAction::CreateUObject(const_cast<UActivityNode_Stage*>(this), &UActivityNode_Stage::AddObjectiveNode, Graph)));
 	}
 	
 	AddContextMenuActionsServices(Menu, Context);

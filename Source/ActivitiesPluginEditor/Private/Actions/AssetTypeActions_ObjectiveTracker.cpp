@@ -1,7 +1,7 @@
 // 2017-2019 Puny Human
 
 #include "AssetTypeActions_ObjectiveTracker.h"
-#include "ObjectiveTracker.h"
+#include "DataModel/ObjectiveTracker.h"
 
 
 #define LOCTEXT_NAMESPACE "ActivitiesPlugin"

@@ -1,7 +1,7 @@
 // 2017-2019 Puny Human
 
 #include "ActivityEditor.h"
-#include "Activity.h"
+#include "DataModel/Activity.h"
 
 #include "Graph/EdGraph_Activity.h"
 #include "Graph/EdGraphSchema_Activity.h"
@@ -25,6 +25,7 @@
 
 #include "Graph/Nodes/ActivityNode_Base.h"
 #include "Graph/Nodes/ActivityNode_Stage.h"
+#include "EditorStyleSet.h"
 
 #define LOCTEXT_NAMESPACE "ActivityEditor"
 

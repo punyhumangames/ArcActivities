@@ -6,8 +6,8 @@
 
 #include "ActivityNode_Service.h"
 
-#include "Activity.h"
-#include "ActivityStage.h"
+#include "DataModel/Activity.h"
+#include "DataModel/ActivityStage.h"
 
 UActivityNode_Entry::UActivityNode_Entry(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

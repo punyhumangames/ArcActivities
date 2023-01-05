@@ -1,7 +1,7 @@
 // 2017-2019 Puny Human
 
 #include "Factory_ObjectiveTracker.h"
-#include "ObjectiveTracker.h"
+#include "DataModel/ObjectiveTracker.h"
 
 
 UFactory_ObjectiveTracker::UFactory_ObjectiveTracker(const FObjectInitializer& ObjectInitializer)

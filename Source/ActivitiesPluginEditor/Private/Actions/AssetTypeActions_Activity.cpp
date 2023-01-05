@@ -1,7 +1,7 @@
 // 2017-2019 Puny Human
 
 #include "AssetTypeActions_Activity.h"
-#include "Activity.h"
+#include "DataModel/Activity.h"
 
 #include "ActivityEditor.h"
 #include "ActivitiesPluginEditorModule.h"
