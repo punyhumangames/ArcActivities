@@ -20,9 +20,8 @@
 #include "Actions/AssetTypeActions_Activity.h"
 #include "AssetTypeActions/AssetTypeActions_Blueprint.h"
 #include "Actions/AssetTypeActions_Service.h"
+#include "Actions/AssetTypeActions_ObjectiveTracker.h"
 
-#include "Blueprints/ActivityServiceBlueprint.h"
-#include "Blueprints/ObjectiveTrackerBlueprint.h"
 
 
 IMPLEMENT_MODULE(FActivitiesPluginEditorModule, ActivitiesPluginEditor)
@@ -49,23 +48,15 @@ void FActivitiesPluginEditorModule::StartupModule()
 
 	RegisterAction(MakeShareable(new FAssetTypeActions_Activity(ActivitiesCategory)));
 	RegisterAction(MakeShareable(new FAssetTypeActions_Service(ActivitiesCategory)));
-	/*
-	
-	RegisterAction(MakeShareable(
-		new FAssetTypeActions_ActivityGraphBPType(
-			ActivitiesCategory,
-			FColor::Yellow,
-			UActivityTask_ObjectiveTracker::StaticClass(),
-			NSLOCTEXT("ActivitiesEditor", "ObjectiveTrackerName", "Objective Tracker")
-		)
-	));
-	*/
+	RegisterAction(MakeShareable(new FAssetTypeActions_ObjectiveTracker(ActivitiesCategory)));
+
 	GraphPanelNodeFactory_ActivityNodes = MakeShareable(new FGraphPanelNodeFactory_ActivityNodes());
 	FEdGraphUtilities::RegisterVisualNodeFactory(GraphPanelNodeFactory_ActivityNodes);
 
 	MenuExtensibilityManager = MakeShareable(new FExtensibilityManager);
 	ToolBarExtensibilityManager = MakeShareable(new FExtensibilityManager);
 
+	
 }
 
 void FActivitiesPluginEditorModule::ShutdownModule()
@@ -87,17 +78,20 @@ void FActivitiesPluginEditorModule::ShutdownModule()
 		FEdGraphUtilities::UnregisterVisualNodeFactory(GraphPanelNodeFactory_ActivityNodes);
 		GraphPanelNodeFactory_ActivityNodes.Reset();
 	}
-	
+	if (ClassCache.IsValid())
+	{
+		ClassCache.Reset();
+	}
 }
 
 TSharedRef<FActivityEditor> FActivitiesPluginEditorModule::CreateActivityEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UActivity* Object)
 {
 	if (!ClassCache.IsValid())
-	{	
+	{
 		ClassCache = MakeShareable(new FGraphNodeClassHelper(UActivityTask_Base::StaticClass()));
 		FGraphNodeClassHelper::AddObservedBlueprintClasses(UActivityTask_StageService::StaticClass());
 		FGraphNodeClassHelper::AddObservedBlueprintClasses(UActivityTask_ObjectiveTracker::StaticClass());
-		ClassCache->UpdateAvailableBlueprintClasses();	   
+		ClassCache->UpdateAvailableBlueprintClasses();
 	}
 
 	TSharedRef< FActivityEditor> NewActivityEditor(new FActivityEditor());
