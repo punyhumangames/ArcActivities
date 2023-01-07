@@ -27,6 +27,12 @@ public:
 
 	UActivity* GetOwningActivity();
 
+	UPROPERTY(EditAnywhere, Category="Activity")
+	FText StageName;
+
+	UPROPERTY(EditAnywhere, Category = "Activity")
+	FText StageDescription;
+
 	UPROPERTY(VisibleAnywhere, Category="Activity")
 	UActivityStage* NextStage_Success;
 	UPROPERTY(VisibleAnywhere, Category = "Activity")

@@ -2,9 +2,6 @@
 
 #include "ActivitiesPluginEditor.h"
 
-#include "Actions/AssetTypeActions_Activity.h"
-#include "Actions/AssetTypeActions_ObjectiveTracker.h"
-
 #include "Modules/ModuleManager.h"
 #include "IAssetTypeActions.h"
 #include "EdGraphUtilities.h"

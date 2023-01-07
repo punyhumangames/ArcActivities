@@ -20,11 +20,13 @@ public:
 	virtual void AllocateDefaultPins() override;
 	virtual const FSlateBrush* GetNodeIcon() const override;
 	virtual void GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
+	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
+	virtual FText GetDescription() const;
 
 	// End UEdGraphNode interface.
 
 	virtual void PinConnectionListChanged(UEdGraphPin* Pin) override;
-	virtual UActivityStage* GetActivityStage();
+	virtual UActivityStage* GetActivityStage() const;
 
 	virtual void OnSubNodeAdded(UAIGraphNode* SubNode);
 	virtual void OnSubNodeRemoved(UAIGraphNode* SubNode);

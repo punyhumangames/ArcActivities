@@ -9,6 +9,8 @@
 #include "DataModel/Activity.h"
 #include "DataModel/ActivityStage.h"
 
+#define LOCTEXT_NAMESPACE "ActivityNode"
+
 UActivityNode_Entry::UActivityNode_Entry(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -30,7 +32,17 @@ void UActivityNode_Entry::GetNodeContextMenuActions(class UToolMenu* Menu, class
 	AddContextMenuActionsServices(Menu, Context);
 }
 
-UObject* UActivityNode_Entry::GetNodeInstance()
+FText UActivityNode_Entry::GetNodeTitle(ENodeTitleType::Type TitleType) const
+{
+	return LOCTEXT("EntryNodeTitle", "Entry");
+}
+
+FText UActivityNode_Entry::GetDescription() const
+{
+	return LOCTEXT("EntryNodeDescription", "The Entry point for this activity");
+}
+
+UObject* UActivityNode_Entry::GetNodeInstance() const
 {
 	return GetEditingActivity();
 }
@@ -75,3 +87,5 @@ void UActivityNode_Entry::OnSubNodeRemoved(UAIGraphNode* SubNode)
 		GetEditingActivity()->StageServices.Remove(ServiceNode->GetService());
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

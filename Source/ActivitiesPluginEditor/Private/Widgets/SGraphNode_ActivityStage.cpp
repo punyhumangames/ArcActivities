@@ -199,7 +199,7 @@ void SGraphNode_Activity::UpdateGraphNode()
 		.VAlign(VAlign_Center)
 		[
 			SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+			.BorderImage(FAppStyle::GetBrush("Graph.StateNode.Body"))
 			.Padding(0.0f)
 			.BorderBackgroundColor(this, &SGraphNode_Activity::GetBorderBackgroundColor)
 			.OnMouseButtonDown(this, &SGraphNode_Activity::OnMouseDown)
@@ -228,17 +228,12 @@ void SGraphNode_Activity::UpdateGraphNode()
 					+ SVerticalBox::Slot()
 						.Padding(FMargin(NodePadding.Left, 0.0f, NodePadding.Right, 0.0f))
 						[
-							SNew(SVerticalBox)
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							[
-								TopSubnodesBox.ToSharedRef()
-							]
+							SNew(SVerticalBox)							
 							+ SVerticalBox::Slot()
 							.AutoHeight()
 							[
 								SAssignNew(NodeBody, SBorder)
-								.BorderImage(FEditorStyle::GetBrush("BTEditor.Graph.BTNode.Body"))
+								.BorderImage(FAppStyle::GetBrush("BTEditor.Graph.BTNode.Body"))
 								.BorderBackgroundColor(this, &SGraphNode_Activity::GetBackgroundColor)
 								.HAlign(HAlign_Fill)
 								.VAlign(VAlign_Center)
@@ -292,7 +287,7 @@ void SGraphNode_Activity::UpdateGraphNode()
 													.AutoHeight()
 													[
 														SAssignNew(InlineEditableText, SInlineEditableTextBlock)
-														.Style(FEditorStyle::Get(), "Graph.StateNode.NodeTitleInlineEditableText")
+														.Style(FAppStyle::Get(), "Graph.StateNode.NodeTitleInlineEditableText")
 														.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
 														.OnVerifyTextChanged(this, &SGraphNode_Activity::OnVerifyNameTextChanged)
 														.OnTextCommitted(this, &SGraphNode_Activity::OnNameTextCommited)
@@ -319,12 +314,19 @@ void SGraphNode_Activity::UpdateGraphNode()
 								]			  								
 							]
 						]
+					//OBJECTIVES NODES
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(FMargin(10.0f, 0, 0, 0))
 						[
 							BottomSubnodesBox.ToSharedRef()
 						]
+						//SERVICES NODES
+						+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								TopSubnodesBox.ToSharedRef()
+							]
 					]
 
 					// OUTPUT PIN AREA
@@ -355,7 +357,7 @@ void SGraphNode_Activity::UpdateGraphNode()
 					SNew(SBorder)
 					//.BorderBackgroundColor(SGraphNode_Activity::Action::DragMarker)
 					//.ColorAndOpacity(SGraphNode_Activity::Action::DragMarker)
-					.BorderImage(FEditorStyle::GetBrush("BTEditor.Graph.BTNode.Body"))
+					.BorderImage(FAppStyle::GetBrush("BTEditor.Graph.BTNode.Body"))
 					.Visibility(this, &SGraphNode_Activity::GetDragOverMarkerVisibility)
 					[
 						SNew(SBox)
@@ -369,7 +371,7 @@ void SGraphNode_Activity::UpdateGraphNode()
 				.VAlign(VAlign_Top)
 				[
 					SNew(SImage)
-					.Image(FEditorStyle::GetBrush(TEXT("BTEditor.Graph.BTNode.Blueprint")))
+					.Image(FAppStyle::GetBrush(TEXT("BTEditor.Graph.BTNode.Blueprint")))
 					.Visibility(this, &SGraphNode_Activity::GetBlueprintIconVisibility)
 				]
 			]
@@ -555,7 +557,7 @@ FSlateColor SGraphNode_Activity::GetBackgroundColor() const
 
 const FSlateBrush* SGraphNode_Activity::GetNameIcon() const
 {
-	return FEditorStyle::GetBrush(TEXT("BTEditor.Graph.BTNode.Icon"));
+	return FAppStyle::GetBrush(TEXT("BTEditor.Graph.BTNode.Icon"));
 }
 
 EVisibility SGraphNode_Activity::GetBlueprintIconVisibility() const

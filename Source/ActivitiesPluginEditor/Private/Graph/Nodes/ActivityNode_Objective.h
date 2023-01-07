@@ -16,8 +16,9 @@ public:
 
 	virtual void AllocateDefaultPins() override;
 	virtual void GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
+	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 
-	UActivityObjective* GetObjective();
+	UActivityObjective* GetObjective() const;
 
 	void CreateAddTrackerSubMenu(class FMenuBuilder& MenuBuilder, UEdGraph* Graph) const;
 	void AddContextMenuActionsTracker(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const;

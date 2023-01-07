@@ -17,6 +17,12 @@
 
 #include "ActivityEditor.h"
 
+#include "Actions/AssetTypeActions_Activity.h"
+#include "AssetTypeActions/AssetTypeActions_Blueprint.h"
+#include "Actions/AssetTypeActions_Service.h"
+
+#include "Blueprints/ActivityServiceBlueprint.h"
+#include "Blueprints/ObjectiveTrackerBlueprint.h"
 
 
 IMPLEMENT_MODULE(FActivitiesPluginEditorModule, ActivitiesPluginEditor)
@@ -42,8 +48,18 @@ void FActivitiesPluginEditorModule::StartupModule()
 	EAssetTypeCategories::Type ActivitiesCategory = AssetTools.RegisterAdvancedAssetCategory(TEXT("ActivitiesPlugin"), NSLOCTEXT("ActivitiesEditor", "ActivitiesEditorCategory", "Activities"));
 
 	RegisterAction(MakeShareable(new FAssetTypeActions_Activity(ActivitiesCategory)));
-	RegisterAction(MakeShareable(new FAssetTypeActions_ObjectiveTracker(ActivitiesCategory)));
-
+	RegisterAction(MakeShareable(new FAssetTypeActions_Service(ActivitiesCategory)));
+	/*
+	
+	RegisterAction(MakeShareable(
+		new FAssetTypeActions_ActivityGraphBPType(
+			ActivitiesCategory,
+			FColor::Yellow,
+			UActivityTask_ObjectiveTracker::StaticClass(),
+			NSLOCTEXT("ActivitiesEditor", "ObjectiveTrackerName", "Objective Tracker")
+		)
+	));
+	*/
 	GraphPanelNodeFactory_ActivityNodes = MakeShareable(new FGraphPanelNodeFactory_ActivityNodes());
 	FEdGraphUtilities::RegisterVisualNodeFactory(GraphPanelNodeFactory_ActivityNodes);
 

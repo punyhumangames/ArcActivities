@@ -60,7 +60,7 @@ bool UActivityNode_Base::CanCreateUnderSpecifiedSchema(const UEdGraphSchema* Des
 	return DesiredSchema->GetClass()->IsChildOf(UEdGraphSchema_Activity::StaticClass());
 }
 
-UObject* UActivityNode_Base::GetNodeInstance()
+UObject* UActivityNode_Base::GetNodeInstance() const
 {
 	return NodeInstance;
 }
@@ -72,7 +72,7 @@ FText UActivityNode_Base::GetNodeTitle(ENodeTitleType::Type TitleType) const
 
 const FSlateBrush* UActivityNode_Base::GetNodeIcon() const
 {
-	return FEditorStyle::GetBrush(TEXT("Graph.StateNode.Icon"));
+	return FAppStyle::GetBrush(TEXT("Graph.StateNode.Icon"));
 }
 
 FSlateColor UActivityNode_Base::GetNodeBackgroundColor() const
@@ -102,12 +102,17 @@ FText UActivityNode_Base::GetPinDisplayName(const UEdGraphPin* Pin) const
 	return LOCTEXT("UnknownPin", "Unknown");
 }
 
-UEdGraph_Activity* UActivityNode_Base::GetActivityGraph()
+FText UActivityNode_Base::GetDescription() const
+{
+	return LOCTEXT("NoDescription", "No Description Set");
+}
+
+UEdGraph_Activity* UActivityNode_Base::GetActivityGraph() const
 {
 	return CastChecked<UEdGraph_Activity>(GetGraph());
 }
 
-UActivity* UActivityNode_Base::GetEditingActivity()
+UActivity* UActivityNode_Base::GetEditingActivity() const
 {
 	if (UEdGraph_Activity* ActivityGraph = GetActivityGraph())
 	{

@@ -62,6 +62,22 @@ void UActivityNode_Stage::GetNodeContextMenuActions(class UToolMenu* Menu, class
 	AddContextMenuActionsServices(Menu, Context);
 }
 
+FText UActivityNode_Stage::GetNodeTitle(ENodeTitleType::Type TitleType) const
+{
+	switch (TitleType)
+	{
+	case ENodeTitleType::FullTitle:
+		return IsValid(GetActivityStage()) ? GetActivityStage()->StageName : LOCTEXT("NullKey", "ERROR: NULL NODE");
+	default:
+		return Super::GetNodeTitle(TitleType);
+	}
+}
+
+FText UActivityNode_Stage::GetDescription() const
+{
+	return IsValid(GetActivityStage()) ? GetActivityStage()->StageDescription : LOCTEXT("Null Description", "ERROR: NULL NODE");
+}
+
 void UActivityNode_Stage::PinConnectionListChanged(UEdGraphPin* Pin)
 {
 	Super::PinConnectionListChanged(Pin);
@@ -88,7 +104,7 @@ void UActivityNode_Stage::PinConnectionListChanged(UEdGraphPin* Pin)
 	}
 }
 
-UActivityStage* UActivityNode_Stage::GetActivityStage()
+UActivityStage* UActivityNode_Stage::GetActivityStage() const
 {
 	return Cast<UActivityStage>(NodeInstance);
 }

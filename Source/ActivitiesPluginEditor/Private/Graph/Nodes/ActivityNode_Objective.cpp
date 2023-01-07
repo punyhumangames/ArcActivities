@@ -35,7 +35,18 @@ void UActivityNode_Objective::GetNodeContextMenuActions(class UToolMenu* Menu, c
 	AddContextMenuActionsTracker(Menu, Context);
 }
 
-UActivityObjective* UActivityNode_Objective::GetObjective()
+FText UActivityNode_Objective::GetNodeTitle(ENodeTitleType::Type TitleType) const
+{
+	switch (TitleType)
+	{
+	case ENodeTitleType::FullTitle:
+		return IsValid(GetObjective()) ? GetObjective()->ObjectiveName : LOCTEXT("NullObjectiveName", "ERROR: NULL OBJECTIVE");
+	default:
+		return Super::GetNodeTitle(TitleType);
+	}
+}
+
+UActivityObjective* UActivityNode_Objective::GetObjective() const
 {
 	return Cast<UActivityObjective>(GetNodeInstance());
 }

@@ -27,16 +27,17 @@ public:
 
 	virtual bool CanCreateUnderSpecifiedSchema(const UEdGraphSchema* DesiredSchema) const override;
 
-	virtual UObject* GetNodeInstance();
+	virtual UObject* GetNodeInstance() const;
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual const FSlateBrush* GetNodeIcon() const;
 	virtual FSlateColor GetNodeBackgroundColor() const;
 	virtual FLinearColor GetNodeTitleColor() const override;
 	virtual FText GetPinDisplayName(const UEdGraphPin* Pin) const override;
+	virtual FText GetDescription() const;
 
-	UEdGraph_Activity* GetActivityGraph();
-	UActivity* GetEditingActivity();
+	UEdGraph_Activity* GetActivityGraph() const;
+	UActivity* GetEditingActivity() const;
 
 	virtual void OnSubNodeAdded(UAIGraphNode* SubNode) override;
 	virtual void OnSubNodeRemoved(UAIGraphNode* SubNode) override;

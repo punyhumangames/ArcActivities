@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class ACTIVITIESPLUGIN_API UActivityTask_StageService : public UActivityTask_Base
 {
 	GENERATED_BODY()

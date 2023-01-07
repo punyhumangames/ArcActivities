@@ -53,7 +53,7 @@ void FAssetTypeActions_Activity::OpenAssetEditor(const TArray<UObject*>& InObjec
 
 uint32 FAssetTypeActions_Activity::GetCategories()
 {
-	return AssetCategory | EAssetTypeCategories::Gameplay;
+	return AssetCategory;
 }
 
 #undef LOCTEXT_NAMESPACE
