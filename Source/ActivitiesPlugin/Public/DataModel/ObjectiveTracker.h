@@ -14,12 +14,19 @@ class ACTIVITIESPLUGIN_API UActivityTask_ObjectiveTracker : public UActivityTask
 {
 	GENERATED_BODY()
 public:
+	friend class UArcActivityInstance;
+
 	UActivityTask_ObjectiveTracker(const FObjectInitializer& ObjectInitializer);
 
+	UActivityObjective* GetOwningObjective() const;
 
 	UFUNCTION(BlueprintNativeEvent)
-	void InitializeTracker(class UActivityObjective* Objective);
-	virtual void InitializeTracker_Implementation(class UActivityObjective* Objective);
+	void InitializeTracker();
+	virtual void InitializeTracker_Implementation();
 
+private:
+
+	UPROPERTY()
+	TObjectPtr<UActivityObjective> ObjectiveRef;
 
 };

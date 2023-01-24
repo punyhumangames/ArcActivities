@@ -1,7 +1,7 @@
 // 2017-2019 Puny Human
 
-#include "DataModel/ObjectiveTracker.h"
 #include "Actions/AssetTypeActions_Service.h"
+#include "DataModel/ObjectiveTracker.h"
 
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Misc/MessageDialog.h"

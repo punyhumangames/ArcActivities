@@ -9,18 +9,6 @@ namespace UnrealBuildTool.Rules
             PrivatePCHHeaderFile = "Public/ActivitiesPlugin.h";
 
 
-            PublicIncludePaths.AddRange(
-				new string[] {
-					// ... add public include paths required here ...
-				}
-				);
-
-			PrivateIncludePaths.AddRange(
-				new string[] {
-					// ... add other private include paths required here ...
-				}
-				);
-
 			PublicDependencyModuleNames.AddRange(
 				new string[]
 				{
@@ -28,23 +16,15 @@ namespace UnrealBuildTool.Rules
                     "CoreUObject",
                     "Engine", "InputCore",
                     "UMG",
-                }
-				);
+					"GameplayTags",
+                });
 
 			PrivateDependencyModuleNames.AddRange(
 				new string[]
 				{
                     "Slate",
                     "SlateCore",
-                }
-				);
-
-			DynamicallyLoadedModuleNames.AddRange(
-				new string[]
-				{
-					// ... add any modules that your module loads dynamically here ...
-				}
-				);
+                });
 		}
 	}
 }
