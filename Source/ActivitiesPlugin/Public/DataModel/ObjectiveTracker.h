@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "ActivityTask_Base.h"
+#include "ArcActivityTypes.h"
 #include "ObjectiveTracker.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FArcObjectiveTrackerStateUpdated, UActivityTask_ObjectiveTracker* /*Tracker*/);
 
 /**
  * 
@@ -19,12 +22,25 @@ public:
 	UActivityTask_ObjectiveTracker(const FObjectInitializer& ObjectInitializer);
 
 	UActivityObjective* GetOwningObjective() const;
+	
 
-	UFUNCTION(BlueprintNativeEvent)
-	void InitializeTracker();
-	virtual void InitializeTracker_Implementation();
+	UFUNCTION(BlueprintPure, Category="Acitivty")
+	EArcActivityObjectiveTrackerState GetTrackerState() const { return State; }
+
+	UFUNCTION(BlueprintCallable, Category = "Acitivty")
+	void MarkSuccess();
+
+	UFUNCTION(BlueprintCallable, Category = "Acitivty")
+	void MarkFailure();
+
+	FArcObjectiveTrackerStateUpdated OnTrackerStateUpdated;
 
 private:
+
+	void NotifyActivityInstance();
+
+	EArcActivityObjectiveTrackerState State;
+
 
 	UPROPERTY()
 	TObjectPtr<UActivityObjective> ObjectiveRef;

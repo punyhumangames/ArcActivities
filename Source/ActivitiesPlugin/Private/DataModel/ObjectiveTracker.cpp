@@ -14,6 +14,19 @@ UActivityObjective* UActivityTask_ObjectiveTracker::GetOwningObjective() const
 	return ObjectiveRef;
 }
 
-void UActivityTask_ObjectiveTracker::InitializeTracker_Implementation()
+void UActivityTask_ObjectiveTracker::MarkSuccess()
 {
+	State = EArcActivityObjectiveTrackerState::CompletedSuccess;
+	NotifyActivityInstance();
+}
+
+void UActivityTask_ObjectiveTracker::MarkFailure()
+{
+	State = EArcActivityObjectiveTrackerState::CompletedFail;
+	NotifyActivityInstance();
+}
+
+void UActivityTask_ObjectiveTracker::NotifyActivityInstance()
+{
+	OnTrackerStateUpdated.Broadcast(this);
 }

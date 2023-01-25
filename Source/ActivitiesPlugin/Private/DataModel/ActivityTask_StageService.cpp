@@ -9,13 +9,3 @@ UActivityTask_StageService::UActivityTask_StageService(const FObjectInitializer&
 
 }
 
-void UActivityTask_StageService::StageBegun_Implementation(EActivityStageProgression PreviousStage)
-{
-
-}
-
-void UActivityTask_StageService::StageEnded_Implementation(EActivityStageProgression StageResult)
-{
-
-}
-

@@ -3,14 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ArcActivityTypes.h"
 #include "ActivityStage.generated.h"
 
-UENUM(BlueprintType)
-enum class EActivityStageProgression : uint8
-{
-	Success,
-	Failed,
-};
 
 class UActivityObjective;
 class UActivityTask_StageService;
@@ -32,6 +27,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Activity")
 	FText StageDescription;
+
+	UPROPERTY(EditAnywhere, Category = "Activity")
+		EArcActivityCompletionMode CompletionMode;
+
 
 	UPROPERTY(VisibleAnywhere, Category="Activity")
 	UActivityStage* NextStage_Success;

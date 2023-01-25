@@ -4,27 +4,39 @@
 
 #include "CoreMinimal.h"
 #include "DataModel/ActivityTask_Base.h"
-#include "ActivityStage.h"
+#include "ArcActivityTypes.h"
 #include "ActivityTask_StageService.generated.h"
+
+class UActivityStage;
+
+
 
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable)
+UCLASS(BlueprintType, Blueprintable, Abstract)
 class ACTIVITIESPLUGIN_API UActivityTask_StageService : public UActivityTask_Base
 {
 	GENERATED_BODY()
 
 public:
+	friend class UArcActivityInstance;
+
 	UActivityTask_StageService(const FObjectInitializer& ObjectInitializer);
 	
 	UFUNCTION(BlueprintNativeEvent)
-		void StageBegun(EActivityStageProgression PreviousStage);
-	virtual void StageBegun_Implementation(EActivityStageProgression PreviousStage);
+	void StageBegun(EArcActivitySuccessState PreviousStageResult, UActivityStage* PreviousStage);
+	virtual void StageBegun_Implementation(EArcActivitySuccessState PreviousStageResult, UActivityStage* PreviousStage) { };
 
 	UFUNCTION(BlueprintNativeEvent)
-	void StageEnded(EActivityStageProgression StageResult);
-	virtual void  StageEnded_Implementation(EActivityStageProgression StageResult);
+	void StageEnded(EArcActivitySuccessState StageResult);
+	virtual void  StageEnded_Implementation(EArcActivitySuccessState StageResult) { };
 	
+	UFUNCTION(BlueprintPure, Category = "Activity")
+	UActivityStage* GetActivityStage() const { return OwningStage; }
+
+private:
 	
+	TObjectPtr<UActivityStage> OwningStage;
+
 };

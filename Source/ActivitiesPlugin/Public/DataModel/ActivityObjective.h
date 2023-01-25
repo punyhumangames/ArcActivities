@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ArcActivityTypes.h"
 #include "ActivityObjective.generated.h"
 
 class UActivityTask_ObjectiveTracker;
+
+
 
 /**
  * 
@@ -22,4 +25,7 @@ public:
 
 	UPROPERTY()
 	TArray<UActivityTask_ObjectiveTracker*> ObjectiveTrackers;
+
+	UPROPERTY(EditAnywhere, Category = "Setup")
+	EArcActivityCompletionMode CompletionMode;
 };

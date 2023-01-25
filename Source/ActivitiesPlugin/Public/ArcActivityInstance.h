@@ -59,17 +59,24 @@ public:
 	using ForEachObjectiveTrackerFunc = TFunctionRef<void(UActivityTask_ObjectiveTracker*)>;
 	void ForEachObjectiveTracker_Mutable(ForEachObjectiveTrackerFunc Func) const;
 
+	UFUNCTION(BlueprintPure, Category="Activity")
+	EArcActivitySuccessState GetActivityState() const { return ActivityState; }
+
 private:
 	//BEGIN ACCESSED BY ARC ACTIVITY GI SUBSYSTEM
 	void InitActivityGraph(UActivity* Graph, const FGameplayTagContainer& Tags);
 
-	void ProgressStage_Internal(EArcActivityTransitionMode Transition);
+	void ProgressStage_Internal(EArcActivitySuccessState Transition);
 
 	void EnterStage_Internal(UActivityStage* Stage);
 	void ExitStage_Internal(UActivityStage* Stage);
 
+	void TrackerUpdated_Internal(UActivityTask_ObjectiveTracker* Tracker);
+
 	FArcActivityDelegateEnded OnActivityEnded;
 
+	
+	EArcActivitySuccessState ActivityState;
 
 	UPROPERTY()
 	TObjectPtr<UActivity> ActivityGraph;

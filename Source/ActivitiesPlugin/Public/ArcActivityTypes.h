@@ -7,7 +7,7 @@
 #include "ArcActivityTypes.generated.h"
 
 UENUM(BlueprintType)
-enum class EArcActivityObjectState : uint8
+enum class EArcActivityObjectiveTrackerState : uint8
 {
 	Tracking,
 	CompletedSuccess,
@@ -15,8 +15,20 @@ enum class EArcActivityObjectState : uint8
 };
 
 UENUM(BlueprintType)
-enum class EArcActivityTransitionMode : uint8
+enum class EArcActivitySuccessState : uint8
 {
 	Success,
 	Failure,
+	Cancelled,
+	InProgress,
+};
+
+
+UENUM(BlueprintType)
+enum class EArcActivityCompletionMode : uint8
+{	
+	//Will mark this as success if any child has succeeded. 
+	AnySuccess,
+	//Will mark as success if all are successful, fail if any failed
+	AllSuccess,
 };
