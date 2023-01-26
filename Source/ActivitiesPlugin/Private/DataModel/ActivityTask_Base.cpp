@@ -11,6 +11,14 @@ UActivityTask_Base::UActivityTask_Base(const FObjectInitializer& ObjectInitializ
 {
 
 }
+UWorld *UActivityTask_Base::GetWorld() const
+{
+    if(UArcActivityInstance* Instance = GetActivityInstance())
+	{
+		return Instance->GetWorld();
+	}
+	return nullptr;
+}
 
 UArcActivityInstance* UActivityTask_Base::GetActivityInstance() const
 {

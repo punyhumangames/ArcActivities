@@ -81,6 +81,7 @@ UArcActivityInstance* UArcActivityWorldSubsystem::StartActivity(UActivity* Activ
     UArcActivityInstance* Instance = NewObject<UArcActivityInstance>(this); //TODO: for replication, make this outer some replicated 
     if (IsValid(Instance))
     {
+        Instance->World = GetWorld();
         Instance->OnActivityEnded.AddUObject(this, &ThisClass::OnActivityEndedEvent);
         Instance->InitActivityGraph(Activity, Tags);
         ActivityInstances.AddUnique(Instance);

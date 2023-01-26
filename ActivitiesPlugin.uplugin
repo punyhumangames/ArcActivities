@@ -21,7 +21,7 @@
 		},
 		{
 			"Name": "ActivitiesPluginEditor",
-			"Type": "Editor",
+			"Type": "UncookedOnly",
 			"LoadingPhase": "PreDefault"
 		}
 	]

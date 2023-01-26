@@ -18,7 +18,9 @@ class ACTIVITIESPLUGIN_API UActivityTask_Base : public UObject
 	GENERATED_BODY()
 public:
 	UActivityTask_Base(const FObjectInitializer& ObjectInitializer);
-	
+
+	virtual class UWorld* GetWorld() const;
+
 	UFUNCTION(BlueprintPure, Category="Arc|Activity")
 	UArcActivityInstance* GetActivityInstance() const;
 

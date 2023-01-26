@@ -26,6 +26,8 @@ class ACTIVITIESPLUGIN_API UArcActivityInstance : public UObject
 public:
 	friend class UArcActivityWorldSubsystem;
 
+	virtual class UWorld* GetWorld() const override { return World.Get(); }
+
 	bool IsActive() const;
 	void EndActivity(bool bWasCancelled = false);
 
@@ -98,5 +100,7 @@ private:
 
 	UPROPERTY()
 	TArray<TObjectPtr< UActivityTask_ObjectiveTracker>> CurrentObjectiveTrackers;
+
+	TWeakObjectPtr<UWorld> World;
 	
 };
