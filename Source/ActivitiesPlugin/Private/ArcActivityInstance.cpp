@@ -98,7 +98,7 @@ bool UArcActivityInstance::TryProgressStage()
 		//If the stage succeeds on any success and one of the objectives succeeds on any success, the first success succeeds this whole stage
 		if (bStageAnySuccess && bObjectiveAnySuccess && TrackerState == EArcActivityObjectiveTrackerState::CompletedSuccess)
 		{
-			StageState == EArcActivityObjectiveTrackerState::CompletedSuccess;
+			StageState = EArcActivityObjectiveTrackerState::CompletedSuccess;
 			break;
 		}
 

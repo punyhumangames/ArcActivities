@@ -8,15 +8,6 @@ namespace UnrealBuildTool.Rules
 		{
             PrivatePCHHeaderFile = "Public/ActivitiesPluginEditor.h";
 
-            PublicIncludePaths.AddRange(
-				new string[] {
-				});
-
-			PrivateIncludePaths.AddRange(
-				new string[] {
-					"AIGraph/Classes"
-				});
-
 			PublicDependencyModuleNames.AddRange(
 				new string[]
 				{
@@ -46,7 +37,8 @@ namespace UnrealBuildTool.Rules
                     "BlueprintGraph",
                     "ClassViewer",
                     "MessageLog",
-                    "Kismet",
+                    "Kismet",					
+					"KismetCompiler",
                 });
 
 			DynamicallyLoadedModuleNames.AddRange(
