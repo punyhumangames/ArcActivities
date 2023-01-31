@@ -69,11 +69,15 @@ UArcActivityPlayerComponent* UArcActivityWorldSubsystem::RegisterPlayerForActivi
     {
         return nullptr;
     }
+	if (UArcActivityPlayerComponent* ActivityComp = PlayerState->FindComponentByClass<UArcActivityPlayerComponent>())
+	{
+		return ActivityComp;
+	}
 
-    if (UArcActivityPlayerComponent* ActivitiyComp = NewObject<UArcActivityPlayerComponent>(PlayerState))
+    if (UArcActivityPlayerComponent* ActivityComp = NewObject<UArcActivityPlayerComponent>(PlayerState))
     {
-        ActivitiyComp->RegisterComponent();
-        return ActivitiyComp;
+		ActivityComp->RegisterComponent();
+        return ActivityComp;
     }
 
     return nullptr;
