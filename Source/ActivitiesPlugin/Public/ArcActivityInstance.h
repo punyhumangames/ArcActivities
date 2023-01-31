@@ -31,7 +31,9 @@ public:
 	bool IsActive() const;
 	void EndActivity(bool bWasCancelled = false);
 
+	UFUNCTION(BlueprintCallable)
 	void AddPlayerToActivity(UArcActivityPlayerComponent* Player);
+	UFUNCTION(BlueprintCallable)
 	void RemovePlayerFromActivity(UArcActivityPlayerComponent* Player);
 	bool TryProgressStage();
 
@@ -66,7 +68,7 @@ public:
 
 private:
 	//BEGIN ACCESSED BY ARC ACTIVITY GI SUBSYSTEM
-	void InitActivityGraph(UActivity* Graph, const FGameplayTagContainer& Tags);
+	bool InitActivityGraph(UActivity* Graph, const FGameplayTagContainer& Tags);
 
 	void ProgressStage_Internal(EArcActivitySuccessState Transition);
 

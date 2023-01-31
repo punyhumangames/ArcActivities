@@ -93,7 +93,8 @@ public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual void Deinitialize() override;
 
-	UArcActivityPlayerComponent* RegisterPlayerForActivities(APlayerState* PlayerState) const;
+	UFUNCTION(BlueprintCallable)
+	UArcActivityPlayerComponent* RegisterPlayerForActivities(APlayerState* PlayerState);
 
 	UFUNCTION(BlueprintCallable)
 	UArcActivityInstance* StartActivity(UActivity* Activity, FGameplayTagContainer Tags);
@@ -111,7 +112,8 @@ private:
 
 	void OnActivityEndedEvent(UArcActivityInstance* Instance, bool bWasCancelled);
 
-	TArray<UArcActivityInstance*> ActivityInstances;
+	UPROPERTY()
+	TArray<TObjectPtr<UArcActivityInstance>> ActivityInstances;
 
 //Messaging
 public:

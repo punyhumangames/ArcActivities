@@ -51,15 +51,19 @@ void UArcActivityWorldSubsystem::Deinitialize()
 
     for(UArcActivityInstance* Instance : ActivityInstances)
     {
-        Instance->OnActivityEnded.RemoveAll(this); //We don't want to hear the dying screams of these activities as we shut them down.
-        Instance->EndActivity(true);
+		if (IsValid(Instance))
+		{
+			Instance->OnActivityEnded.RemoveAll(this); //We don't want to hear the dying screams of these activities as we shut them down.
+			Instance->EndActivity(true);
+		}
+      
     }
     ActivityInstances.Reset();
 
     Super::Deinitialize();
 }
 
-UArcActivityPlayerComponent* UArcActivityWorldSubsystem::RegisterPlayerForActivities(APlayerState* PlayerState) const
+UArcActivityPlayerComponent* UArcActivityWorldSubsystem::RegisterPlayerForActivities(APlayerState* PlayerState) 
 {
     if (!IsValid(PlayerState))
     {
@@ -82,12 +86,14 @@ UArcActivityInstance* UArcActivityWorldSubsystem::StartActivity(UActivity* Activ
     if (IsValid(Instance))
     {
         Instance->World = GetWorld();
-        Instance->OnActivityEnded.AddUObject(this, &ThisClass::OnActivityEndedEvent);
-        Instance->InitActivityGraph(Activity, Tags);
-        ActivityInstances.AddUnique(Instance);
+		if (Instance->InitActivityGraph(Activity, Tags))
+		{
+			Instance->OnActivityEnded.AddUObject(this, &ThisClass::OnActivityEndedEvent);
+			ActivityInstances.AddUnique(Instance);
 
-        //TODO: Report the creation of this activity instance
-        return Instance;
+			//TODO: Report the creation of this activity instance
+			return Instance;
+		}       
     }
     return nullptr;
 }

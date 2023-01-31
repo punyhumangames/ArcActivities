@@ -8,6 +8,7 @@
 #include "DataModel/ActivityObjective.h"
 #include "DataModel/ActivityStage.h"
 #include "ArcActivityPlayerComponent.h"
+#include "ArcActivityPlayerComponent.h"
 
 bool UArcActivityInstance::IsActive() const
 {
@@ -28,6 +29,11 @@ void UArcActivityInstance::EndActivity(bool bWasCancelled)
 	{
 		//Assert here, this is invalid
 	}
+
+	for (UArcActivityPlayerComponent* PlayerComp : PlayersInActivty)
+	{
+		PlayerComp->OnPlayerLeftActivity_Internal(this, true);
+	}
 	
 	//End the tasks and destroy them
 	ForEachStageService_Mutable([bWasCancelled](UActivityTask_StageService* Service)
@@ -39,6 +45,8 @@ void UArcActivityInstance::EndActivity(bool bWasCancelled)
 			Tracker->EndPlay(bWasCancelled);
 		});
 
+
+	PlayersInActivty.Reset();
 	CurrentGlobalStageServices.Reset();
 	CurrentStageServices.Reset();
 	CurrentObjectiveTrackers.Reset();
@@ -53,12 +61,17 @@ void UArcActivityInstance::AddPlayerToActivity(UArcActivityPlayerComponent* Play
 	if (IsValid(Player))
 	{
 		PlayersInActivty.AddUnique(Player);
+		Player->OnPlayerJoinedActivity_Internal(this);
 	}
 }
 
 void UArcActivityInstance::RemovePlayerFromActivity(UArcActivityPlayerComponent* Player)
 {
-	PlayersInActivty.Remove(Player);
+	PlayersInActivty.RemoveSwap(Player);
+	if (IsValid(Player))
+	{
+		Player->OnPlayerLeftActivity_Internal(this);
+	}
 }
 
 bool UArcActivityInstance::TryProgressStage()
@@ -247,24 +260,30 @@ void UArcActivityInstance::ForEachObjectiveTracker_Mutable(ForEachObjectiveTrack
 	}
 }
 
-void UArcActivityInstance::InitActivityGraph(UActivity* Graph, const FGameplayTagContainer& Tags)
+bool UArcActivityInstance::InitActivityGraph(UActivity* Graph, const FGameplayTagContainer& Tags)
 {
-	if (ensure(!IsValid(Graph)))
+	if (!ensure(IsValid(Graph)))
 	{
-		return;
+		return false;
+	}
+	if (!ensure(IsValid(Graph->InitialStage)))
+	{
+		UE_LOG(LogActivitiesPlugin, Error, TEXT("Cannot Start Activity Instance for activity %s: It doesn't have an initial stage"), *GetNameSafe(Graph));
+		return false;
 	}
 
 	ActivityGraph = Graph;
-	CurrentStage = ActivityGraph->InitialStage;
+	EnterStage_Internal(ActivityGraph->InitialStage);
 
 
-	//Lets check if we can progress (the Initial stage is almost always "progress immediately"
+	//Lets check if we can progress (in case the initial stage is already done)
 	TryProgressStage();
+	return true;
 }
 
 void UArcActivityInstance::ProgressStage_Internal(EArcActivitySuccessState Transition)
 {
-	check(!IsValid(CurrentStage));
+	check(IsValid(CurrentStage));
 
 	UActivityStage* PreviousStage = CurrentStage;
 
