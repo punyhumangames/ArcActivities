@@ -6,6 +6,10 @@
 #include "GameplayTagContainer.h"
 #include "ArcActivityTypes.generated.h"
 
+class UArcActivityInstance;
+class UActivityStage;
+class UArcActivityPlayerComponent;
+
 UENUM(BlueprintType)
 enum class EArcActivityObjectiveTrackerState : uint8
 {
@@ -71,4 +75,45 @@ struct FArcActivityListenerParams
 			}
 		};
 	}
+};
+
+USTRUCT(BlueprintType)
+struct FArcActivityEndedEventPayload
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly, Category="Activity")
+	UArcActivityInstance* ActivityInstance;
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	EArcActivitySuccessState ActivityState;
+};
+
+USTRUCT(BlueprintType)
+struct FArcActivityActivityStageChangedEventPayload
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	UArcActivityInstance* ActivityInstance;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	UActivityStage* PreviousStage;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	UActivityStage* CurrentStage;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	EArcActivityObjectiveTrackerState PreviousStageState;
+};
+
+USTRUCT(BlueprintType)
+struct FArcActivityPlayerJoinedActivityEventPayload
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	UArcActivityInstance* ActivityInstance;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	UArcActivityPlayerComponent* Player;
 };

@@ -111,7 +111,7 @@ void UArcActivityWorldSubsystem::CancelActivity(UArcActivityInstance* Activity)
 {
     if (IsValid(Activity) && Activity->IsActive())
     {
-        Activity->EndActivity();
+        Activity->EndActivity(true);
     }
 }
 
