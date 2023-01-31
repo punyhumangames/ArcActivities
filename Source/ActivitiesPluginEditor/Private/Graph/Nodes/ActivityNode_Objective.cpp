@@ -20,7 +20,7 @@ UActivityNode_Objective::UActivityNode_Objective(const FObjectInitializer& Objec
 	: Super(ObjectInitializer)
 {
 	bIsSubNode = true;
-	ClassData = FGraphNodeClassData(UActivityObjective::StaticClass(), FString());
+	ArcClassData = FArcGraphNodeClassData(UActivityObjective::StaticClass(), FString());
 
 	BottomSubNodeClass = UActivityNode_ObjectiveTracker::StaticClass();
 }

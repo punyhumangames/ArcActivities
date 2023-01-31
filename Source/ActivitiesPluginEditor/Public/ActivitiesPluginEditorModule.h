@@ -10,6 +10,7 @@
 #include "Toolkits/AssetEditorToolkit.h"
 #include "AssetTypeActions_Base.h"
 
+struct FArcGraphNodeClassHelper;
 
 class FActivitiesPluginEditorModule : public IModuleInterface,
 	public IHasMenuExtensibility, public IHasToolBarExtensibility
@@ -20,7 +21,7 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-	TSharedPtr<struct FGraphNodeClassHelper> GetClassCache() { return ClassCache; }
+	TSharedPtr<FArcGraphNodeClassHelper> GetClassCache() { return ClassCache; }
 
 	TSharedPtr<FGraphPanelNodeFactory> GraphPanelNodeFactory;
 
@@ -35,7 +36,7 @@ private:
 
 	TArray< TSharedPtr<IAssetTypeActions> > AssetTypeActions;
 
-	TSharedPtr<struct FGraphNodeClassHelper> ClassCache;
+	TSharedPtr<FArcGraphNodeClassHelper> ClassCache;
 
 	TSharedPtr<FExtensibilityManager> MenuExtensibilityManager;
 	TSharedPtr<FExtensibilityManager> ToolBarExtensibilityManager;

@@ -1,6 +1,9 @@
 // 2017-2019 Puny Human
 
 #include "ActivitiesPluginEditorModule.h"
+
+#include "ActivityEditorTypes.h"
+
 #include "Modules/ModuleManager.h"
 #include "IAssetTypeActions.h"
 #include "EdGraphUtilities.h"
@@ -88,9 +91,9 @@ TSharedRef<FActivityEditor> FActivitiesPluginEditorModule::CreateActivityEditor(
 {
 	if (!ClassCache.IsValid())
 	{
-		ClassCache = MakeShareable(new FGraphNodeClassHelper(UActivityTask_Base::StaticClass()));
-		FGraphNodeClassHelper::AddObservedBlueprintClasses(UActivityTask_StageService::StaticClass());
-		FGraphNodeClassHelper::AddObservedBlueprintClasses(UActivityTask_ObjectiveTracker::StaticClass());
+		ClassCache = MakeShareable(new FArcGraphNodeClassHelper(UActivityTask_Base::StaticClass()));
+		FArcGraphNodeClassHelper::AddObservedBlueprintClasses(UActivityTask_StageService::StaticClass());
+		FArcGraphNodeClassHelper::AddObservedBlueprintClasses(UActivityTask_ObjectiveTracker::StaticClass());
 		ClassCache->UpdateAvailableBlueprintClasses();
 	}
 

@@ -60,6 +60,24 @@ bool UActivityNode_Base::CanCreateUnderSpecifiedSchema(const UEdGraphSchema* Des
 	return DesiredSchema->GetClass()->IsChildOf(UEdGraphSchema_Activity::StaticClass());
 }
 
+void UActivityNode_Base::PostPlacedNewNode()
+{
+	// NodeInstance can be already spawned by paste operation, don't override it
+
+	UClass* NodeClass = ArcClassData.GetClass(true);
+	if (NodeClass && (NodeInstance == nullptr))
+	{
+		UEdGraph* MyGraph = GetGraph();
+		UObject* GraphOwner = MyGraph ? MyGraph->GetOuter() : nullptr;
+		if (GraphOwner)
+		{
+			NodeInstance = NewObject<UObject>(GraphOwner, NodeClass);
+			NodeInstance->SetFlags(RF_Transactional);
+			InitializeInstance();
+		}
+	}
+}
+
 UObject* UActivityNode_Base::GetNodeInstance() const
 {
 	return NodeInstance;
@@ -105,6 +123,45 @@ FText UActivityNode_Base::GetPinDisplayName(const UEdGraphPin* Pin) const
 FText UActivityNode_Base::GetDescription() const
 {
 	return LOCTEXT("NoDescription", "No Description Set");
+}
+
+FText UActivityNode_Base::GetTooltipText() const
+{
+	FText TooltipDesc;
+
+	if (!NodeInstance)
+	{
+		FString StoredClassName = ArcClassData.GetClassName();
+		StoredClassName.RemoveFromEnd(TEXT("_C"));
+
+		TooltipDesc = FText::Format(LOCTEXT("NodeClassError", "Class {0} not found, make sure it's saved!"), FText::FromString(StoredClassName));
+	}
+	else
+	{
+		if (ErrorMessage.Len() > 0)
+		{
+			TooltipDesc = FText::FromString(ErrorMessage);
+		}
+		else
+		{
+			if (NodeInstance->GetClass()->HasAnyClassFlags(CLASS_CompiledFromBlueprint))
+			{
+				FAssetData AssetData(NodeInstance->GetClass()->ClassGeneratedBy);
+				FString Description = AssetData.GetTagValueRef<FString>(GET_MEMBER_NAME_CHECKED(UBlueprint, BlueprintDescription));
+				if (!Description.IsEmpty())
+				{
+					Description.ReplaceInline(TEXT("\\n"), TEXT("\n"));
+					TooltipDesc = FText::FromString(MoveTemp(Description));
+				}
+			}
+			else
+			{
+				TooltipDesc = NodeInstance->GetClass()->GetToolTipText();
+			}
+		}
+	}
+
+	return TooltipDesc;
 }
 
 UEdGraph_Activity* UActivityNode_Base::GetActivityGraph() const
@@ -245,5 +302,50 @@ void UActivityNode_Base::AddContextMenuActionsServices(class UToolMenu* Menu, cl
 		LOCTEXT("AddServiceTooltip", "Adds new service as a subnode"),
 		FNewMenuDelegate::CreateUObject(this, &UActivityNode_Base::CreateAddServicesSubMenu, (UEdGraph*)Context->Graph));
 }
+
+bool UActivityNode_Base::RefreshNodeClass()
+{
+	bool bUpdated = false;
+	if (NodeInstance == nullptr)
+	{
+		if (FArcGraphNodeClassHelper::IsClassKnown(ArcClassData))
+		{
+			PostPlacedNewNode();
+			bUpdated = (NodeInstance != nullptr);
+		}
+		else
+		{
+			FArcGraphNodeClassHelper::AddUnknownClass(ArcClassData);
+		}
+	}
+
+	return bUpdated;
+}
+
+void UActivityNode_Base::UpdateNodeClassData()
+{
+	if (NodeInstance)
+	{
+		ArcUpdateNodeClassDataFrom(NodeInstance->GetClass(), ArcClassData);
+		ErrorMessage = ArcClassData.GetDeprecatedMessage();
+	}
+}
+
+void UActivityNode_Base::ArcUpdateNodeClassDataFrom(UClass* InstanceClass, FArcGraphNodeClassData& UpdatedData)
+{
+	if (InstanceClass)
+	{
+		UBlueprint* BPOwner = Cast<UBlueprint>(InstanceClass->ClassGeneratedBy);
+		if (BPOwner)
+		{
+			UpdatedData = FArcGraphNodeClassData(BPOwner->GetName(), BPOwner->GetOutermost()->GetName(), InstanceClass->GetName(), InstanceClass);
+		}
+		else
+		{
+			UpdatedData = FArcGraphNodeClassData(InstanceClass, FArcGraphNodeClassHelper::GetDeprecationMessage(InstanceClass));
+		}
+	}
+}
+
 
 #undef LOCTEXT_NAMESPACE

@@ -27,6 +27,8 @@ public:
 
 	virtual bool CanCreateUnderSpecifiedSchema(const UEdGraphSchema* DesiredSchema) const override;
 
+	virtual void PostPlacedNewNode() override;
+
 	virtual UObject* GetNodeInstance() const;
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
@@ -35,6 +37,7 @@ public:
 	virtual FLinearColor GetNodeTitleColor() const override;
 	virtual FText GetPinDisplayName(const UEdGraphPin* Pin) const override;
 	virtual FText GetDescription() const;
+	virtual FText GetTooltipText() const override;
 
 	UEdGraph_Activity* GetActivityGraph() const;
 	UActivity* GetEditingActivity() const;
@@ -44,6 +47,10 @@ public:
 	virtual void RemoveAllSubNodes() override;
 	virtual int32 FindSubNodeDropIndex(UAIGraphNode* SubNode) const override;
 	virtual void InsertSubNodeAt(UAIGraphNode* SubNode, int32 DropIndex) override;
+
+		/** instance class */
+	UPROPERTY()
+	struct FArcGraphNodeClassData ArcClassData;
 
 	UPROPERTY()
 	TArray<UActivityNode_Base*> BottomSubNodes;
@@ -57,5 +64,11 @@ public:
 
 	void CreateAddServicesSubMenu(class FMenuBuilder& MenuBuilder, UEdGraph* Graph) const;
 	void AddContextMenuActionsServices(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const;
+
+	virtual bool RefreshNodeClass() override;
+	virtual void UpdateNodeClassData() override;
+
+
+	static void ArcUpdateNodeClassDataFrom(UClass* InstanceClass, FArcGraphNodeClassData& UpdatedData);
 
 };

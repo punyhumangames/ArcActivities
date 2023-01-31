@@ -25,7 +25,10 @@ public:
 	virtual const FPinConnectionResponse CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const override;
 	// End EdGraphSchema interface
 
-	virtual void GetSubNodeClasses(int32 SubNodeFlags, TArray<FGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const;
+	virtual void GetArcSubNodeClasses(int32 SubNodeFlags, TArray<FArcGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const;
+
+	virtual void GetGraphNodeContextActions(FGraphContextMenuBuilder& ContextMenuBuilder, int32 SubNodeFlags) const override;
+
 
 };
 

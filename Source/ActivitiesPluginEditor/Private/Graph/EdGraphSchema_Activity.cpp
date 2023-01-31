@@ -73,10 +73,10 @@ const FPinConnectionResponse UEdGraphSchema_Activity::CanCreateConnection(const 
 	return FPinConnectionResponse(CONNECT_RESPONSE_MAKE, TEXT(""));
 }
 
-void UEdGraphSchema_Activity::GetSubNodeClasses(int32 SubNodeFlags, TArray<FGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const
+void UEdGraphSchema_Activity::GetArcSubNodeClasses(int32 SubNodeFlags, TArray<FArcGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const
 {
 	FActivitiesPluginEditorModule& Module = FModuleManager::GetModuleChecked<FActivitiesPluginEditorModule>(TEXT("ActivitiesPluginEditor"));
-	FGraphNodeClassHelper* ClassCache = Module.GetClassCache().Get();
+	FArcGraphNodeClassHelper* ClassCache = Module.GetClassCache().Get();
 
 	if ((EActivitySubnodeType)SubNodeFlags == EActivitySubnodeType::Service)
 	{
@@ -87,6 +87,29 @@ void UEdGraphSchema_Activity::GetSubNodeClasses(int32 SubNodeFlags, TArray<FGrap
 	{
 		ClassCache->GatherClasses(UActivityTask_ObjectiveTracker::StaticClass(), ClassData);
 		GraphNodeClass = UActivityNode_ObjectiveTracker::StaticClass();
+	}
+}
+
+void UEdGraphSchema_Activity::GetGraphNodeContextActions(FGraphContextMenuBuilder& ContextMenuBuilder, int32 SubNodeFlags) const
+{
+	UEdGraph* Graph = (UEdGraph*)ContextMenuBuilder.CurrentGraph;
+	UClass* GraphNodeClass = nullptr;
+	TArray<FArcGraphNodeClassData> NodeClasses;
+	GetArcSubNodeClasses(SubNodeFlags, NodeClasses, GraphNodeClass);
+
+	if (GraphNodeClass)
+	{
+		for (const auto& NodeClass : NodeClasses)
+		{
+			const FText NodeTypeName = FText::FromString(FName::NameToDisplayString(NodeClass.ToString(), false));
+
+			UActivityNode_Base* OpNode = NewObject<UActivityNode_Base>(Graph, GraphNodeClass);
+			OpNode->ArcClassData = NodeClass;
+
+			TSharedPtr<FAISchemaAction_NewSubNode> AddOpAction = UAIGraphSchema::AddNewSubNodeAction(ContextMenuBuilder, NodeClass.GetCategory(), NodeTypeName, FText::GetEmpty());
+			AddOpAction->ParentNode = Cast<UActivityNode_Base>(ContextMenuBuilder.SelectedObjects[0]);
+			AddOpAction->NodeTemplate = OpNode;
+		}
 	}
 }
 

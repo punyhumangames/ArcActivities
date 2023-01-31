@@ -25,7 +25,7 @@
 UActivityNode_Stage::UActivityNode_Stage(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	ClassData = FGraphNodeClassData(UActivityStage::StaticClass(), FString());
+	ArcClassData = FArcGraphNodeClassData(UActivityStage::StaticClass(), FString());
 
 	TopSubNodeClass = UActivityNode_Service::StaticClass();
 	BottomSubNodeClass = UActivityNode_Objective::StaticClass(); 
