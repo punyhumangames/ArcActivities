@@ -91,13 +91,15 @@ struct FArcActivityActivityStateChanged
 	GENERATED_BODY()
 	
 	UPROPERTY(BlueprintReadOnly, Category="Activity")
-	UArcActivityInstance* ActivityInstance;
+	UArcActivityInstance* ActivityInstance = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	EArcActivitySuccessState ActivityState;
+		EArcActivitySuccessState ActivityState;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 	EArcActivitySuccessState PreviousActivityState;
+
+	FArcActivityActivityStateChanged() { }
 
 	FArcActivityActivityStateChanged(UArcActivityInstance* InActivityInstance,
 		EArcActivitySuccessState InActivityState,
@@ -117,19 +119,21 @@ struct FArcActivityStageChangedEventPayload
 
 		//The Activity that is raising this event
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	UArcActivityInstance* ActivityInstance;
+	UArcActivityInstance* ActivityInstance = nullptr;
 
 	//The stage the activity is currently in. May be null if the activity is completed
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		UArcActivityStage* CurrentStage;
+		UArcActivityStage* CurrentStage = nullptr;
 
 	//The stage the activity has left.  May be null if the activity is starting
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	UArcActivityStage* PreviousStage;
+	UArcActivityStage* PreviousStage = nullptr;
 
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 		EArcActivitySuccessState PreviousStageState;
+
+	FArcActivityStageChangedEventPayload() { } 
 
 	FArcActivityStageChangedEventPayload(UArcActivityInstance* InActivityInstance,
 		UArcActivityStage* InCurrentStage,
@@ -144,6 +148,7 @@ struct FArcActivityStageChangedEventPayload
 	}
 };
 
+UENUM(BlueprintType)
 enum class EArcActivityPlayerEventType : uint8
 {
 	PlayerJoined,
@@ -156,13 +161,15 @@ struct FArcActivityPlayerEventPayload
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	UArcActivityInstance* ActivityInstance;
+	UArcActivityInstance* ActivityInstance = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	UArcActivityPlayerComponent* Player;
+	UArcActivityPlayerComponent* Player = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 		EArcActivityPlayerEventType EventType;
+
+	FArcActivityPlayerEventPayload() { }
 
 	FArcActivityPlayerEventPayload(UArcActivityInstance* InActivityInstance,
 		UArcActivityPlayerComponent* InPlayer,

@@ -282,7 +282,7 @@ bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGamepla
 	EnterStage_Internal(ActivityGraph->InitialStage);
 
 	RaiseEvent(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(this, EArcActivitySuccessState::InProgress, EArcActivitySuccessState::None));
-	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityActivityStageChangedEventPayload(this, ActivityGraph->InitialStage, nullptr, EArcActivitySuccessState::None));
+	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityStageChangedEventPayload(this, ActivityGraph->InitialStage, nullptr, EArcActivitySuccessState::None));
 
 
 	//Lets check if we can progress (in case the initial stage is already done)
@@ -327,7 +327,7 @@ void UArcActivityInstance::ProgressStage_Internal(EArcActivitySuccessState Trans
 		});
 	}
 
-	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityActivityStageChangedEventPayload(this, NextStage, PreviousStage, Transition));
+	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityStageChangedEventPayload(this, NextStage, PreviousStage, Transition));
 
 	if(!IsValid(NextStage))
 	{		
