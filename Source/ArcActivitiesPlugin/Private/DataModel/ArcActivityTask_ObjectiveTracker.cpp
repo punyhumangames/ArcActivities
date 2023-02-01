@@ -11,7 +11,7 @@ UArcActivityTask_ObjectiveTracker::UArcActivityTask_ObjectiveTracker(const FObje
 
 UArcActivityObjective* UArcActivityTask_ObjectiveTracker::GetOwningObjective() const
 {
-	return ObjectiveRef;
+	return Objective;
 }
 
 void UArcActivityTask_ObjectiveTracker::MarkSuccess()

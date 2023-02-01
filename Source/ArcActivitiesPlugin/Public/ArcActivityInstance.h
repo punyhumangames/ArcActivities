@@ -20,7 +20,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FArcActivityDelegateEnded, UArcActivityInst
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class ARCACTIVITIESPLUGIN_API UArcActivityInstance : public UObject
 {
 	GENERATED_BODY()
@@ -31,6 +31,9 @@ public:
 
 	bool IsActive() const;
 	void EndActivity(bool bWasCancelled = false);
+
+	UFUNCTION(BlueprintCallable, Category="Activity")
+	TArray<UArcActivityTask_ObjectiveTracker*> GetCurrentObjectiveTrackers();
 
 	UFUNCTION(BlueprintCallable)
 	void AddPlayerToActivity(UArcActivityPlayerComponent* Player);
@@ -102,7 +105,7 @@ private:
 	UPROPERTY()
 	TArray<TObjectPtr<UArcActivityPlayerComponent>> PlayersInActivty;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Activity", meta=(AllowPrivateAccess))
 	TObjectPtr<UArcActivityStage> CurrentStage;
 
 	UPROPERTY()

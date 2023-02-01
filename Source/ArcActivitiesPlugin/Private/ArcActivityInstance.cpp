@@ -58,6 +58,11 @@ void UArcActivityInstance::EndActivity(bool bWasCancelled)
 	OnActivityEnded.Broadcast(this, bWasCancelled);
 }
 
+TArray<UArcActivityTask_ObjectiveTracker*> UArcActivityInstance::GetCurrentObjectiveTrackers()
+{
+	return CurrentObjectiveTrackers;
+}
+
 void UArcActivityInstance::AddPlayerToActivity(UArcActivityPlayerComponent* Player)
 {
 	if (IsValid(Player))
@@ -103,7 +108,7 @@ bool UArcActivityInstance::TryProgressStage()
 	for (UArcActivityTask_ObjectiveTracker* Tracker : CurrentObjectiveTrackers)
 	{
 		EArcActivityObjectiveTrackerState TrackerState = Tracker->GetTrackerState();
-		const EArcActivityCompletionMode ObjectiveCompletionMode = Tracker->ObjectiveRef->CompletionMode;
+		const EArcActivityCompletionMode ObjectiveCompletionMode = Tracker->Objective->CompletionMode;
 	
 		const bool bObjectiveAnyFail = ObjectiveCompletionMode == EArcActivityCompletionMode::AllSuccess;
 		const bool bObjectiveAnySuccess = ObjectiveCompletionMode == EArcActivityCompletionMode::AnySuccess;
@@ -121,7 +126,7 @@ bool UArcActivityInstance::TryProgressStage()
 			break;
 		}
 
-		EArcActivityObjectiveTrackerState& ObjState = ObjectiveStates.FindOrAdd(Tracker->ObjectiveRef, ObjectiveCompletionMode == EArcActivityCompletionMode::AllSuccess ? EArcActivityObjectiveTrackerState::CompletedSuccess : EArcActivityObjectiveTrackerState::CompletedFail);
+		EArcActivityObjectiveTrackerState& ObjState = ObjectiveStates.FindOrAdd(Tracker->Objective, ObjectiveCompletionMode == EArcActivityCompletionMode::AllSuccess ? EArcActivityObjectiveTrackerState::CompletedSuccess : EArcActivityObjectiveTrackerState::CompletedFail);
 
 
 		bool bObjectiveDone = bObjectiveAnySuccess && ObjState == EArcActivityObjectiveTrackerState::CompletedSuccess
@@ -357,7 +362,7 @@ void UArcActivityInstance::EnterStage_Internal(UArcActivityStage* Stage)
 				if (IsValidChecked(Tracker))
 				{
 					UArcActivityTask_ObjectiveTracker* NewTracker = DuplicateObject(Tracker, this);
-					NewTracker->ObjectiveRef = Objective;
+					NewTracker->Objective = Objective;
 					NewTracker->OnTrackerStateUpdated.AddUObject(this, &ThisClass::TrackerUpdated_Internal);
 					CurrentObjectiveTrackers.AddUnique(NewTracker);
 				}

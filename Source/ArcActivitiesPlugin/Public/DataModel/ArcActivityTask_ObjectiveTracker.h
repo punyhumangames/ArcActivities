@@ -42,7 +42,7 @@ private:
 	EArcActivityObjectiveTrackerState State;
 
 
-	UPROPERTY()
-	TObjectPtr<UArcActivityObjective> ObjectiveRef;
+	UPROPERTY(BlueprintReadOnly, Category = "Activity", meta = (AllowPrivateAccess))
+	TObjectPtr<UArcActivityObjective> Objective;
 
 };

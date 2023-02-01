@@ -13,7 +13,7 @@ class UArcActivityTask_StageService;
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class ARCACTIVITIESPLUGIN_API UArcActivityStage : public UObject
 {
 	GENERATED_BODY()
@@ -22,13 +22,13 @@ public:
 
 	UArcActivity* GetOwningActivity();
 
-	UPROPERTY(EditAnywhere, Category="Activity")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Activity")
 	FText StageName;
 
-	UPROPERTY(EditAnywhere, Category = "Activity")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Activity")
 	FText StageDescription;
 
-	UPROPERTY(EditAnywhere, Category = "Activity")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Activity")
 		EArcActivityCompletionMode CompletionMode;
 
 

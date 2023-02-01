@@ -13,14 +13,14 @@ class UArcActivityTask_ObjectiveTracker;
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class ARCACTIVITIESPLUGIN_API UArcActivityObjective  : public UObject
 {
 	GENERATED_BODY()
 public:
 	UArcActivityObjective(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditAnywhere, Category="Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Setup")
 	FText ObjectiveName;
 
 	UPROPERTY()
