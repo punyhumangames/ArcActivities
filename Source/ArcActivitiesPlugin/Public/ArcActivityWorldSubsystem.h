@@ -112,7 +112,7 @@ private:
 
 	void OnActivityEndedEvent(UArcActivityInstance* Instance, bool bWasCancelled);
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Activity", meta = (AllowPrivateAccess))
 	TArray<TObjectPtr<UArcActivityInstance>> ActivityInstances;
 
 //Messaging

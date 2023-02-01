@@ -119,6 +119,7 @@ void UArcActivityWorldSubsystem::CancelActivity(UArcActivityInstance* Activity)
     }
 }
 
+
 bool UArcActivityWorldSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
 {
     return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;

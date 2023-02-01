@@ -102,7 +102,7 @@ private:
 	UPROPERTY()
 	FGameplayTagContainer ActivityTags;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Activity", meta=(AllowPrivateAccess))
 	TArray<TObjectPtr<UArcActivityPlayerComponent>> PlayersInActivty;
 
 	UPROPERTY(BlueprintReadOnly, Category="Activity", meta=(AllowPrivateAccess))
