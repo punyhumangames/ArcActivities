@@ -75,7 +75,7 @@ const FPinConnectionResponse UEdGraphSchema_Activity::CanCreateConnection(const 
 
 void UEdGraphSchema_Activity::GetArcSubNodeClasses(int32 SubNodeFlags, TArray<FArcGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const
 {
-	FActivitiesPluginEditorModule& Module = FModuleManager::GetModuleChecked<FActivitiesPluginEditorModule>(TEXT("ActivitiesPluginEditor"));
+	FActivitiesPluginEditorModule& Module = FModuleManager::GetModuleChecked<FActivitiesPluginEditorModule>(TEXT("ArcActivitiesPluginEditor"));
 	FArcGraphNodeClassHelper* ClassCache = Module.GetClassCache().Get();
 
 	if ((EActivitySubnodeType)SubNodeFlags == EActivitySubnodeType::Service)

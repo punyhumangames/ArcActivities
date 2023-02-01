@@ -47,7 +47,7 @@ TSharedPtr<FGraphPanelNodeFactory_ActivityNodes> GraphPanelNodeFactory_ActivityN
 void FActivitiesPluginEditorModule::StartupModule()
 {
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-	EAssetTypeCategories::Type ActivitiesCategory = AssetTools.RegisterAdvancedAssetCategory(TEXT("ActivitiesPlugin"), NSLOCTEXT("ActivitiesEditor", "ActivitiesEditorCategory", "Activities"));
+	EAssetTypeCategories::Type ActivitiesCategory = AssetTools.RegisterAdvancedAssetCategory(TEXT("ArcActivitiesPlugin"), NSLOCTEXT("ActivitiesEditor", "ActivitiesEditorCategory", "Activities"));
 
 	RegisterAction(MakeShareable(new FAssetTypeActions_Activity(ActivitiesCategory)));
 	RegisterAction(MakeShareable(new FAssetTypeActions_Service(ActivitiesCategory)));

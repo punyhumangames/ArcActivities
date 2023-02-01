@@ -44,7 +44,7 @@ void FAssetTypeActions_Activity::OpenAssetEditor(const TArray<UObject*>& InObjec
 			}
 			else
 			{
-				FActivitiesPluginEditorModule& Module = FModuleManager::GetModuleChecked<FActivitiesPluginEditorModule>(TEXT("ActivitiesPluginEditor"));
+				FActivitiesPluginEditorModule& Module = FModuleManager::GetModuleChecked<FActivitiesPluginEditorModule>(TEXT("ArcActivitiesPluginEditor"));
 				TSharedRef<FActivityEditor> NewEditor = Module.CreateActivityEditor(Mode, EditWithinLevelEditor, Activity);
 			}						 									
 		}

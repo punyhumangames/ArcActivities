@@ -128,7 +128,7 @@ void FActivityEditor::InitActivityEditor(const EToolkitMode::Type Mode, const TS
 			)
 		);
 
-	InitAssetEditor(Mode, InitToolkitHost, TEXT("ActivityEditor"), StandaloneDefaultLayout, true, true, ActivityBeingEdited);
+	InitAssetEditor(Mode, InitToolkitHost, TEXT("ArcActivityEditor"), StandaloneDefaultLayout, true, true, ActivityBeingEdited);
 
 
 	PropertyEditor->SetObject(ActivityBeingEdited);
@@ -286,7 +286,7 @@ FLinearColor FActivityEditor::GetWorldCentricTabColorScale() const
 
 FString FActivityEditor::GetWorldCentricTabPrefix() const
 {
-	return TEXT("ActivityEditor");
+	return TEXT("ArcActivityEditor");
 }
 
 
