@@ -4,7 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "NativeGameplayTags.h"
 #include "ArcActivityTypes.generated.h"
+
+
+ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityStateChangedEventTag);
+ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityStageChangedEventTag);
+ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityPlayerChangedEventTag);
+
 
 class UArcActivityInstance;
 class UArcActivityStage;
@@ -25,6 +32,7 @@ enum class EArcActivitySuccessState : uint8
 	Failure,
 	Cancelled,
 	InProgress,
+	None,
 };
 
 
@@ -78,36 +86,72 @@ struct FArcActivityListenerParams
 };
 
 USTRUCT(BlueprintType)
-struct FArcActivityEndedEventPayload
+struct FArcActivityActivityStateChanged
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(BlueprintReadOnly, Category="Activity")
 	UArcActivityInstance* ActivityInstance;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 	EArcActivitySuccessState ActivityState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+	EArcActivitySuccessState PreviousActivityState;
+
+	FArcActivityActivityStateChanged(UArcActivityInstance* InActivityInstance,
+		EArcActivitySuccessState InActivityState,
+		EArcActivitySuccessState InPreviousActivityState)
+		: ActivityInstance(InActivityInstance)
+		, ActivityState(InActivityState)
+		, PreviousActivityState(InPreviousActivityState)
+	{
+
+	}
 };
 
 USTRUCT(BlueprintType)
-struct FArcActivityActivityStageChangedEventPayload
+struct FArcActivityStageChangedEventPayload
 {
 	GENERATED_BODY()
 
+		//The Activity that is raising this event
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 	UArcActivityInstance* ActivityInstance;
 
+	//The stage the activity is currently in. May be null if the activity is completed
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+		UArcActivityStage* CurrentStage;
+
+	//The stage the activity has left.  May be null if the activity is starting
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 	UArcActivityStage* PreviousStage;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	UArcActivityStage* CurrentStage;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	EArcActivityObjectiveTrackerState PreviousStageState;
+		EArcActivitySuccessState PreviousStageState;
+
+	FArcActivityStageChangedEventPayload(UArcActivityInstance* InActivityInstance,
+		UArcActivityStage* InCurrentStage,
+		UArcActivityStage* InPreviousStage,
+		EArcActivitySuccessState InPreviousStageState)
+		: ActivityInstance(InActivityInstance)
+		, CurrentStage(InCurrentStage)
+		, PreviousStage(InPreviousStage)
+		, PreviousStageState(InPreviousStageState)
+	{
+
+	}
+};
+
+enum class EArcActivityPlayerEventType : uint8
+{
+	PlayerJoined,
+	PlayerLeft
 };
 
 USTRUCT(BlueprintType)
-struct FArcActivityPlayerJoinedActivityEventPayload
+struct FArcActivityPlayerEventPayload
 {
 	GENERATED_BODY()
 
@@ -116,4 +160,17 @@ struct FArcActivityPlayerJoinedActivityEventPayload
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 	UArcActivityPlayerComponent* Player;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+		EArcActivityPlayerEventType EventType;
+
+	FArcActivityPlayerEventPayload(UArcActivityInstance* InActivityInstance,
+		UArcActivityPlayerComponent* InPlayer,
+		EArcActivityPlayerEventType InEventType)
+		: ActivityInstance(InActivityInstance)
+		, Player(InPlayer)
+		, EventType(InEventType)
+	{
+
+	}
 };

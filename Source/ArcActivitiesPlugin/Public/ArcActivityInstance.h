@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "GameplayTagContainer.h"
 #include "ArcActivityTypes.h"
+#include "ArcActivityWorldSubsystem.h"
 #include "ArcActivityInstance.generated.h"
 
 class UArcActivity;
@@ -65,6 +66,16 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="Activity")
 	EArcActivitySuccessState GetActivityState() const { return ActivityState; }
+
+protected:
+	template<typename T>
+	void RaiseEvent(FGameplayTag Tag, const T& EventStruct)
+	{
+		if (UArcActivityWorldSubsystem* Subsys = GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
+		{
+			Subsys->BroadcastMessage(Tag, EventStruct);
+		}
+	}
 
 private:
 	//BEGIN ACCESSED BY ARC ACTIVITY GI SUBSYSTEM

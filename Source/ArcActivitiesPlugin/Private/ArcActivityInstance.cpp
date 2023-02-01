@@ -30,6 +30,8 @@ void UArcActivityInstance::EndActivity(bool bWasCancelled)
 		//Assert here, this is invalid
 	}
 
+	RaiseEvent(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(this, ActivityState, EArcActivitySuccessState::InProgress));
+
 	for (UArcActivityPlayerComponent* PlayerComp : PlayersInActivty)
 	{
 		PlayerComp->OnPlayerLeftActivity_Internal(this, true);
@@ -62,14 +64,18 @@ void UArcActivityInstance::AddPlayerToActivity(UArcActivityPlayerComponent* Play
 	{
 		PlayersInActivty.AddUnique(Player);
 		Player->OnPlayerJoinedActivity_Internal(this);
+
+		RaiseEvent(FArcActivityPlayerChangedEventTag, FArcActivityPlayerEventPayload(this, Player, EArcActivityPlayerEventType::PlayerJoined));
 	}
 }
 
 void UArcActivityInstance::RemovePlayerFromActivity(UArcActivityPlayerComponent* Player)
 {
-	PlayersInActivty.RemoveSwap(Player);
 	if (IsValid(Player))
 	{
+		RaiseEvent(FArcActivityPlayerChangedEventTag, FArcActivityPlayerEventPayload(this, Player, EArcActivityPlayerEventType::PlayerLeft));
+	
+		PlayersInActivty.RemoveSwap(Player);	
 		Player->OnPlayerLeftActivity_Internal(this);
 	}
 }
@@ -275,6 +281,9 @@ bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGamepla
 	ActivityGraph = Graph;
 	EnterStage_Internal(ActivityGraph->InitialStage);
 
+	RaiseEvent(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(this, EArcActivitySuccessState::InProgress, EArcActivitySuccessState::None));
+	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityActivityStageChangedEventPayload(this, ActivityGraph->InitialStage, nullptr, EArcActivitySuccessState::None));
+
 
 	//Lets check if we can progress (in case the initial stage is already done)
 	TryProgressStage();
@@ -306,6 +315,7 @@ void UArcActivityInstance::ProgressStage_Internal(EArcActivitySuccessState Trans
 		ExitStage_Internal(CurrentStage);
 	}
 
+	CurrentStage = nullptr;
 	
 	if (IsValid(NextStage))
 	{		
@@ -316,9 +326,11 @@ void UArcActivityInstance::ProgressStage_Internal(EArcActivitySuccessState Trans
 			StageService->StageBegun(Transition, PreviousStage);
 		});
 	}
-	else
-	{
-		CurrentStage = PreviousStage;
+
+	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityActivityStageChangedEventPayload(this, NextStage, PreviousStage, Transition));
+
+	if(!IsValid(NextStage))
+	{		
 		ActivityState = Transition;
 		//If we dont have a stage, we're done.
 		EndActivity(false);
