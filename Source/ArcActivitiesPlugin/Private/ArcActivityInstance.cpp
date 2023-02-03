@@ -10,6 +10,31 @@
 #include "ArcActivityPlayerComponent.h"
 #include "ArcActivityPlayerComponent.h"
 
+#include "Net/UnrealNetwork.h"
+
+#include "Engine/ActorChannel.h" 
+#include "Engine/NetDriver.h"
+#include "Engine/NetConnection.h"
+
+bool UArcActivityInstance::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	return false;
+}
+
+void UArcActivityInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(UArcActivityInstance, ActivityGraph, COND_InitialOnly);
+	DOREPLIFETIME_CONDITION(UArcActivityInstance, ActivityTags, COND_InitialOnly);
+	DOREPLIFETIME(UArcActivityInstance, CurrentStage);
+	DOREPLIFETIME(UArcActivityInstance, PlayersInActivty);
+	DOREPLIFETIME(UArcActivityInstance, CurrentGlobalStageServices);
+	DOREPLIFETIME(UArcActivityInstance, CurrentStageServices);
+	DOREPLIFETIME(UArcActivityInstance, CurrentObjectiveTrackers);
+	DOREPLIFETIME(UArcActivityInstance, ActivityState);
+}
+
 bool UArcActivityInstance::IsActive() const
 {
 	return CurrentStage != nullptr;
@@ -269,6 +294,11 @@ void UArcActivityInstance::ForEachObjectiveTracker_Mutable(ForEachObjectiveTrack
 			Func(Tracker);
 		}
 	}
+}
+
+void UArcActivityInstance::OnRep_CurrentStage(UArcActivityStage* PreviousStage)
+{
+
 }
 
 bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGameplayTagContainer& Tags)

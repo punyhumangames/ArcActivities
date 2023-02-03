@@ -14,9 +14,11 @@ namespace UnrealBuildTool.Rules
 				{
 					"Core",
                     "CoreUObject",
-                    "Engine", "InputCore",
+                    "Engine", 
+					"InputCore",
                     "UMG",
 					"GameplayTags",
+					"NetCore",
                 });
 
 			PrivateDependencyModuleNames.AddRange(

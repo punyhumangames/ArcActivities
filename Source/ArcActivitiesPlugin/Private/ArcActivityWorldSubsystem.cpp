@@ -11,6 +11,8 @@
 #include "ArcActivityInstance.h"
 #include "Engine/World.h"
 
+#include "ArcActivityReplicationProxy.h"
+
 void FArcActivityMessageListenerHandle::Unregister()
 {
     if (UArcActivityWorldSubsystem* StrongSubsystem = Subsystem.Get())
@@ -43,6 +45,14 @@ bool UArcActivityWorldSubsystem::HasInstance(const UObject *WorldContextObject)
 void UArcActivityWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 {
     Super::OnWorldBeginPlay(InWorld);
+
+	//If we are a server, we need to create a replication proxy for the activities so they properly replicate
+	if (InWorld.GetNetMode() == ENetMode::NM_DedicatedServer || InWorld.GetNetMode() == ENetMode::NM_ListenServer)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ReplicationProxy = InWorld.SpawnActor<AArcActivityReplicationProxy>(SpawnParams);
+	}
 }
 
 void UArcActivityWorldSubsystem::Deinitialize()
@@ -59,6 +69,11 @@ void UArcActivityWorldSubsystem::Deinitialize()
       
     }
     ActivityInstances.Reset();
+
+	if (ReplicationProxy)
+	{
+		ReplicationProxy->Destroy();
+	}
 
     Super::Deinitialize();
 }
@@ -86,7 +101,13 @@ UArcActivityPlayerComponent* UArcActivityWorldSubsystem::RegisterPlayerForActivi
 
 UArcActivityInstance* UArcActivityWorldSubsystem::StartActivity(UArcActivity* Activity, FGameplayTagContainer Tags)
 {
-    UArcActivityInstance* Instance = NewObject<UArcActivityInstance>(this); //TODO: for replication, make this outer some replicated 
+	UObject* InstanceOuter = this;
+	if(IsValid(ReplicationProxy))
+	{
+		InstanceOuter = ReplicationProxy;
+	}
+
+    UArcActivityInstance* Instance = NewObject<UArcActivityInstance>(InstanceOuter); //TODO: for replication, make this outer some replicated 
     if (IsValid(Instance))
     {
         Instance->World = GetWorld();
@@ -94,6 +115,11 @@ UArcActivityInstance* UArcActivityWorldSubsystem::StartActivity(UArcActivity* Ac
 		{
 			Instance->OnActivityEnded.AddUObject(this, &ThisClass::OnActivityEndedEvent);
 			ActivityInstances.AddUnique(Instance);
+
+			if (IsValid(ReplicationProxy))
+			{
+				ReplicationProxy->AddReplicatedActivityInstance(Instance);
+			}
 
 			//TODO: Report the creation of this activity instance
 			return Instance;
@@ -129,6 +155,11 @@ void UArcActivityWorldSubsystem::OnActivityEndedEvent(UArcActivityInstance* Inst
 {
     Instance->OnActivityEnded.RemoveAll(this);
     ActivityInstances.Remove(Instance);
+
+	if (IsValid(ReplicationProxy))
+	{
+		ReplicationProxy->RemoveReplicatedActivityInstance(Instance);
+	}
 }
 
 namespace Arc

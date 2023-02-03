@@ -27,6 +27,7 @@ class UArcActivityPlayerComponent;
 class APlayerState;
 class UArcAsyncAction_ListenForEvent;
 class UArcActivityWorldSubsystem;
+class AArcActivityReplicationProxy;
 
 
 
@@ -114,6 +115,9 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity", meta = (AllowPrivateAccess))
 	TArray<TObjectPtr<UArcActivityInstance>> ActivityInstances;
+
+	UPROPERTY()
+	TObjectPtr<AArcActivityReplicationProxy> ReplicationProxy;
 
 //Messaging
 public:

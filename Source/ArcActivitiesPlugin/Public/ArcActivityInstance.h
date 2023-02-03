@@ -29,6 +29,11 @@ public:
 
 	virtual class UWorld* GetWorld() const override { return World.Get(); }
 
+	virtual bool IsSupportedForNetworking() const override { return true; }
+	virtual bool IsNameStableForNetworking() const override { return false; }
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags);
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
 	bool IsActive() const;
 	void EndActivity(bool bWasCancelled = false);
 
@@ -70,6 +75,9 @@ public:
 	UFUNCTION(BlueprintPure, Category="Activity")
 	EArcActivitySuccessState GetActivityState() const { return ActivityState; }
 
+	UFUNCTION()
+	virtual void OnRep_CurrentStage(UArcActivityStage* PreviousStage);
+
 protected:
 	template<typename T>
 	void RaiseEvent(FGameplayTag Tag, const T& EventStruct)
@@ -93,30 +101,36 @@ private:
 
 	FArcActivityDelegateEnded OnActivityEnded;
 
-	
-	EArcActivitySuccessState ActivityState;
+	TWeakObjectPtr<UWorld> World;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<UArcActivity> ActivityGraph;
 
-	UPROPERTY()
-	FGameplayTagContainer ActivityTags;
-
-	UPROPERTY(BlueprintReadOnly, Category="Activity", meta=(AllowPrivateAccess))
-	TArray<TObjectPtr<UArcActivityPlayerComponent>> PlayersInActivty;
-
-	UPROPERTY(BlueprintReadOnly, Category="Activity", meta=(AllowPrivateAccess))
+	UPROPERTY(BlueprintReadOnly, Category = "Activity", meta = (AllowPrivateAccess), ReplicatedUsing = OnRep_CurrentStage)
 	TObjectPtr<UArcActivityStage> CurrentStage;
 
-	UPROPERTY()
+	
+	UPROPERTY(Replicated)
+	FGameplayTagContainer ActivityTags;
+
+	//TODO:FastArraySerialize this
+	UPROPERTY(BlueprintReadOnly, Category="Activity", meta=(AllowPrivateAccess), Replicated)
+	TArray<TObjectPtr<UArcActivityPlayerComponent>> PlayersInActivty;
+
+	//TODO:FastArraySerialize this
+	UPROPERTY(Replicated)
 	TArray<TObjectPtr<UArcActivityTask_StageService>> CurrentGlobalStageServices;
 
-	UPROPERTY()
+	//TODO:FastArraySerialize this
+	UPROPERTY(Replicated)
 	TArray< TObjectPtr<UArcActivityTask_StageService>> CurrentStageServices;
 
-	UPROPERTY()
+	//TODO:FastArraySerialize this
+	UPROPERTY(Replicated)
 	TArray<TObjectPtr< UArcActivityTask_ObjectiveTracker>> CurrentObjectiveTrackers;
 
-	TWeakObjectPtr<UWorld> World;
+
+	UPROPERTY(Replicated)
+	EArcActivitySuccessState ActivityState;
 	
 };
