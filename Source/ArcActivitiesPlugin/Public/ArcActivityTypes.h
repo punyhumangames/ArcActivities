@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "NativeGameplayTags.h"
+#include "Engine/NetSerialization.h"
 #include "ArcActivityTypes.generated.h"
 
 
@@ -12,6 +13,7 @@ ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityStateChangedE
 ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityStageChangedEventTag);
 ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityPlayerChangedEventTag);
 
+class UArcActivityTask_Base;
 
 class UArcActivityInstance;
 class UArcActivityStage;
@@ -180,4 +182,86 @@ struct FArcActivityPlayerEventPayload
 	{
 
 	}
+};
+
+USTRUCT()
+struct FArcActivityTaskEntry : public FFastArraySerializerItem
+{
+	GENERATED_BODY()
+
+		FArcActivityTaskEntry()
+		: FArcActivityTaskEntry(nullptr)
+	{
+	}
+
+	FArcActivityTaskEntry(UArcActivityTask_Base* InTask)
+		: Super()
+		, Task(InTask)
+	{
+	}
+
+	UPROPERTY()
+	UArcActivityTask_Base* Task;
+
+
+	void PreReplicatedRemove(const struct FArcActivityTaskArray& InArraySerializer);
+	void PostReplicatedAdd(const struct FArcActivityTaskArray& InArraySerializer);
+	void PostReplicatedChange(const struct FArcActivityTaskArray& InArraySerializer);
+
+	// Optional: debug string used with LogNetFastTArray logging
+	FString GetDebugString();
+
+};
+
+USTRUCT()
+struct FArcActivityTaskArray : public FFastArraySerializer
+{
+	GENERATED_BODY()
+
+	FArcActivityTaskArray(UArcActivityInstance* InOwner)
+		: Super()
+		, Owner(InOwner)
+	{
+
+	}
+
+	FArcActivityTaskArray()
+		: FArcActivityTaskArray(nullptr)
+	{
+
+	}
+
+	UPROPERTY()
+	UArcActivityInstance* Owner;
+
+	UPROPERTY()
+	TArray<FArcActivityTaskEntry>	Items;
+
+	/** Step 4: Copy this, replace example with your names */
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
+	{
+		return FFastArraySerializer::FastArrayDeltaSerialize<FArcActivityTaskEntry, FArcActivityTaskArray>(Items, DeltaParms, *this);
+	}
+
+	void Add(UArcActivityTask_Base* Service);
+
+	void Reset();
+
+	auto begin() { return Items.begin(); }
+	auto begin() const { return Items.begin(); }
+	auto end() { return Items.end(); }
+	auto end() const { return Items.end(); }
+	auto& operator[](int32 index) { return Items[index]; } \
+		const auto& operator[](int32 index) const { return Items[index]; }
+	int32 Num() const { return Items.Num(); }
+};
+
+/** Step 5: Copy and paste this struct trait, replacing FExampleArray with your Step 2 struct. */
+template<>
+struct TStructOpsTypeTraits< FArcActivityTaskArray > : public TStructOpsTypeTraitsBase2< FArcActivityTaskArray >
+{
+	enum
+	{
+		WithNetDeltaSerializer = true,
+	};
 };

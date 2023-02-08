@@ -17,6 +17,8 @@ class UArcActivityTask_ObjectiveTracker;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FArcActivityDelegateEnded, UArcActivityInstance* /* Instnace */, bool /* bWasCancelled */)
 
+
+
 /**
  * 
  */
@@ -26,6 +28,8 @@ class ARCACTIVITIESPLUGIN_API UArcActivityInstance : public UObject
 	GENERATED_BODY()
 public:
 	friend class UArcActivityWorldSubsystem;
+
+	UArcActivityInstance();
 
 	virtual class UWorld* GetWorld() const override { return World.Get(); }
 
@@ -119,15 +123,15 @@ private:
 
 	//TODO:FastArraySerialize this
 	UPROPERTY(Replicated)
-	TArray<TObjectPtr<UArcActivityTask_StageService>> CurrentGlobalStageServices;
+	FArcActivityTaskArray CurrentGlobalStageServices;
 
 	//TODO:FastArraySerialize this
 	UPROPERTY(Replicated)
-	TArray< TObjectPtr<UArcActivityTask_StageService>> CurrentStageServices;
+	FArcActivityTaskArray CurrentStageServices;
 
 	//TODO:FastArraySerialize this
 	UPROPERTY(Replicated)
-	TArray<TObjectPtr< UArcActivityTask_ObjectiveTracker>> CurrentObjectiveTrackers;
+	FArcActivityTaskArray CurrentObjectiveTrackers;
 
 
 	UPROPERTY(Replicated)

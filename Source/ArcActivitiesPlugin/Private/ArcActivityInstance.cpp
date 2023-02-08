@@ -16,9 +16,36 @@
 #include "Engine/NetDriver.h"
 #include "Engine/NetConnection.h"
 
+UArcActivityInstance::UArcActivityInstance()
+	: Super()
+	, CurrentGlobalStageServices(this)
+	, CurrentStageServices(this)
+	, CurrentObjectiveTrackers(this)
+{
+}
+
 bool UArcActivityInstance::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
-	return false;
+	bool bWroteSomething = false;
+
+	auto ServicePred = [&bWroteSomething, Channel, Bunch, RepFlags](UArcActivityTask_StageService* Service)
+	{
+		bWroteSomething |= Channel->ReplicateSubobject(Service, *Bunch, *RepFlags);
+		bWroteSomething |= Service->ReplicateSubobjects(Channel, Bunch, RepFlags);
+	};
+
+	ForEachGlobalStageService_Mutable(ServicePred);
+	ForEachCurrentStageService_Mutable(ServicePred);
+
+	auto TrackerPred = [&bWroteSomething, Channel, Bunch, RepFlags](UArcActivityTask_ObjectiveTracker* Tracker)
+	{
+		bWroteSomething |= Channel->ReplicateSubobject(Tracker, *Bunch, *RepFlags);
+		bWroteSomething |= Tracker->ReplicateSubobjects(Channel, Bunch, RepFlags);
+	};
+
+	ForEachObjectiveTracker_Mutable(TrackerPred);
+
+	return bWroteSomething;
 }
 
 void UArcActivityInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -85,7 +112,12 @@ void UArcActivityInstance::EndActivity(bool bWasCancelled)
 
 TArray<UArcActivityTask_ObjectiveTracker*> UArcActivityInstance::GetCurrentObjectiveTrackers()
 {
-	return CurrentObjectiveTrackers;
+	TArray<UArcActivityTask_ObjectiveTracker*> Elements;
+	ForEachObjectiveTracker_Mutable([&Elements](UArcActivityTask_ObjectiveTracker* Entry)
+		{
+			Elements.Add(Entry);
+		});
+	return MoveTemp(Elements);
 }
 
 void UArcActivityInstance::AddPlayerToActivity(UArcActivityPlayerComponent* Player)
@@ -130,8 +162,14 @@ bool UArcActivityInstance::TryProgressStage()
 
 
 	//Check the status of the trackers
-	for (UArcActivityTask_ObjectiveTracker* Tracker : CurrentObjectiveTrackers)
+	for (const auto& TrackerEnty : CurrentObjectiveTrackers)
 	{
+		auto Tracker = Cast<UArcActivityTask_ObjectiveTracker>(TrackerEnty.Task);
+		if (!IsValid(Tracker))
+		{
+			continue;
+		}
+
 		EArcActivityObjectiveTrackerState TrackerState = Tracker->GetTrackerState();
 		const EArcActivityCompletionMode ObjectiveCompletionMode = Tracker->Objective->CompletionMode;
 	
@@ -231,44 +269,44 @@ bool UArcActivityInstance::TryProgressStage()
 
 void UArcActivityInstance::ForEachGlobalStageService(ConstForEachStageServiceFunc Func) const
 {
-	for (auto StageService : CurrentGlobalStageServices)
+	for (const auto& StageService : CurrentGlobalStageServices)
 	{
-		if (IsValid(StageService))
+		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
 		{
-			Func(StageService);
+			Func(Service);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachCurrentStageService(ConstForEachStageServiceFunc Func) const
 {
-	for (auto StageService : CurrentStageServices)
+	for (const auto& StageService : CurrentStageServices)
 	{
-		if (IsValid(StageService))
+		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
 		{
-			Func(StageService);
+			Func(Service);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachGlobalStageService_Mutable(ForEachStageServiceFunc Func) const
 {
-	for (auto StageService : CurrentGlobalStageServices)
+	for (const auto& StageService : CurrentGlobalStageServices)
 	{
-		if (IsValid(StageService))
+		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
 		{
-			Func(StageService);
+			Func(Service);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachCurrentStageService_Mutable(ForEachStageServiceFunc Func) const
 {
-	for (auto StageService : CurrentStageServices)
+	for (const auto& StageService : CurrentStageServices)
 	{
-		if (IsValid(StageService))
+		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
 		{
-			Func(StageService);
+			Func(Service);
 		}
 	}
 }
@@ -276,22 +314,22 @@ void UArcActivityInstance::ForEachCurrentStageService_Mutable(ForEachStageServic
 
 void UArcActivityInstance::ForEachObjectiveTracker(ConstForEachObjectiveTrackerFunc Func) const
 {
-	for (auto Tracker : CurrentObjectiveTrackers)
+	for (const auto& Tracker : CurrentObjectiveTrackers)
 	{
-		if (IsValid(Tracker))
+		if (auto TrackerTask = Cast<UArcActivityTask_ObjectiveTracker>(Tracker.Task))
 		{
-			Func(Tracker);
+			Func(TrackerTask);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachObjectiveTracker_Mutable(ForEachObjectiveTrackerFunc Func) const
 {
-	for (auto Tracker : CurrentObjectiveTrackers)
+	for (const auto& Tracker : CurrentObjectiveTrackers)
 	{
-		if (IsValid(Tracker))
+		if (auto TrackerTask = Cast<UArcActivityTask_ObjectiveTracker>(Tracker.Task))
 		{
-			Func(Tracker);
+			Func(TrackerTask);
 		}
 	}
 }
@@ -381,7 +419,7 @@ void UArcActivityInstance::EnterStage_Internal(UArcActivityStage* Stage)
 	{
 		auto NewService = DuplicateObject(Service, this);
 		NewService->OwningStage = Stage;
-		CurrentStageServices.AddUnique(NewService);
+		CurrentStageServices.Add(NewService);
 	}
 	for (auto Objective : Stage->Objectives)
 	{
@@ -394,7 +432,7 @@ void UArcActivityInstance::EnterStage_Internal(UArcActivityStage* Stage)
 					UArcActivityTask_ObjectiveTracker* NewTracker = DuplicateObject(Tracker, this);
 					NewTracker->Objective = Objective;
 					NewTracker->OnTrackerStateUpdated.AddUObject(this, &ThisClass::TrackerUpdated_Internal);
-					CurrentObjectiveTrackers.AddUnique(NewTracker);
+					CurrentObjectiveTrackers.Add(NewTracker);
 				}
 			}
 		}
@@ -432,7 +470,11 @@ void UArcActivityInstance::ExitStage_Internal(UArcActivityStage* Stage)
 
 void UArcActivityInstance::TrackerUpdated_Internal(UArcActivityTask_ObjectiveTracker* Tracker)
 {
-	if (CurrentObjectiveTrackers.Contains(Tracker))
+	const auto TrackerPred = [Tracker](const FArcActivityTaskEntry& Entry)
+	{
+		return Entry.Task == Tracker;
+	};
+	if (CurrentObjectiveTrackers.Items.ContainsByPredicate(TrackerPred))
 	{
 		TryProgressStage();
 	}

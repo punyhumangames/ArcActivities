@@ -19,6 +19,13 @@ class ARCACTIVITIESPLUGIN_API UArcActivityTask_Base : public UObject
 public:
 	UArcActivityTask_Base(const FObjectInitializer& ObjectInitializer);
 
+
+	virtual bool IsSupportedForNetworking() const override { return true; }
+	virtual bool IsNameStableForNetworking() const override { return false; }
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) {
+		return false;
+	}
+
 	virtual class UWorld* GetWorld() const;
 
 	UFUNCTION(BlueprintPure, Category="Arc|Activity")

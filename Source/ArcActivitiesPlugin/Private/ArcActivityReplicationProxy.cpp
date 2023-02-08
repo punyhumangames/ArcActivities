@@ -15,6 +15,7 @@ AArcActivityReplicationProxy::AArcActivityReplicationProxy()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
+	bAlwaysRelevant = true;
 
 }
 

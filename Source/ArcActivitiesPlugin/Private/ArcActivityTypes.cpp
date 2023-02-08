@@ -5,3 +5,32 @@
 UE_DEFINE_GAMEPLAY_TAG(FArcActivityStateChangedEventTag, TEXT("Activity.Event.StateChanged"));
 UE_DEFINE_GAMEPLAY_TAG(FArcActivityStageChangedEventTag, TEXT("Activity.Event.StageChanged"));
 UE_DEFINE_GAMEPLAY_TAG(FArcActivityPlayerChangedEventTag, TEXT("Activity.Event.PlayerChanged"));
+
+void FArcActivityTaskEntry::PreReplicatedRemove(const FArcActivityTaskArray& InArraySerializer)
+{
+}
+
+void FArcActivityTaskEntry::PostReplicatedAdd(const FArcActivityTaskArray& InArraySerializer)
+{
+}
+
+void FArcActivityTaskEntry::PostReplicatedChange(const FArcActivityTaskArray& InArraySerializer)
+{
+}
+
+FString FArcActivityTaskEntry::GetDebugString()
+{
+	return FString();
+}
+
+void FArcActivityTaskArray::Reset()
+{
+	Items.Reset();
+	MarkArrayDirty();
+}
+
+void FArcActivityTaskArray::Add(UArcActivityTask_Base* Service)
+{
+	FArcActivityTaskEntry& entry = Items.Add_GetRef(FArcActivityTaskEntry(Service));
+	MarkItemDirty(entry);
+}
