@@ -12,6 +12,7 @@
 
 // Sets default values
 AArcActivityReplicationProxy::AArcActivityReplicationProxy()
+	: ReplicatedActivities(this)
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
@@ -82,14 +83,44 @@ void AArcActivityReplicationProxy::RemoveReplicatedActivityInstance(UArcActivity
 
 void FArcActivityReplicationEntry::PreReplicatedRemove(const FArcActivityReplicationArray& InArraySerializer)
 {
+	if (IsValid(InArraySerializer.RepProxy) && IsValid(Activity))
+	{
+		if (UArcActivityWorldSubsystem* WorldSubsystem = InArraySerializer.RepProxy->GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
+		{
+			WorldSubsystem->NotifyRemovedActivityFromReplication(Activity);
+		}
+	}
 }
 
 void FArcActivityReplicationEntry::PostReplicatedAdd(const FArcActivityReplicationArray& InArraySerializer)
 {
+	if (IsValid(InArraySerializer.RepProxy) && IsValid(Activity))
+	{
+		if (UArcActivityWorldSubsystem* WorldSubsystem = InArraySerializer.RepProxy->GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
+		{			
+			WorldSubsystem->NotifyAddedActivityFromReplication(Activity);
+		}
+	}
 }
 
 void FArcActivityReplicationEntry::PostReplicatedChange(const FArcActivityReplicationArray& InArraySerializer)
 {
+	//Report Back that we've changed
+	if (IsValid(InArraySerializer.RepProxy))
+	{
+		if (UArcActivityWorldSubsystem* WorldSubsystem = InArraySerializer.RepProxy->GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
+		{
+			if (PreviousActivity.IsValid())
+			{
+				WorldSubsystem->NotifyRemovedActivityFromReplication(PreviousActivity.Get());
+			}
+			if (IsValid(Activity))
+			{
+				WorldSubsystem->NotifyAddedActivityFromReplication(Activity);
+			}
+		}		
+	}
+	PreviousActivity = Activity;
 }
 
 FString FArcActivityReplicationEntry::GetDebugString()

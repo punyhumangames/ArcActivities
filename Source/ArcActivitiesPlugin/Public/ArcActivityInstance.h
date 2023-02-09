@@ -86,10 +86,13 @@ protected:
 	template<typename T>
 	void RaiseEvent(FGameplayTag Tag, const T& EventStruct)
 	{
-		if (UArcActivityWorldSubsystem* Subsys = GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
+		if (IsValid(GetWorld()))
 		{
-			Subsys->BroadcastMessage(Tag, EventStruct);
-		}
+			if (UArcActivityWorldSubsystem* Subsys = GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
+			{
+				Subsys->BroadcastMessage(Tag, EventStruct);
+			}
+		}		
 	}
 
 private:

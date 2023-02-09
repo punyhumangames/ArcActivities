@@ -162,6 +162,27 @@ void UArcActivityWorldSubsystem::OnActivityEndedEvent(UArcActivityInstance* Inst
 	}
 }
 
+void UArcActivityWorldSubsystem::NotifyAddedActivityFromReplication(UArcActivityInstance* Instance)
+{
+	if (IsValid(Instance))
+	{
+		ActivityInstances.Add(Instance);
+		BroadcastMessage(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(Instance, EArcActivitySuccessState::InProgress, EArcActivitySuccessState::None));
+		BroadcastMessage(FArcActivityStageChangedEventTag, FArcActivityStageChangedEventPayload(Instance, Instance->CurrentStage, nullptr, EArcActivitySuccessState::None));
+	}
+}
+
+void UArcActivityWorldSubsystem::NotifyRemovedActivityFromReplication(UArcActivityInstance* Instance)
+{
+	if (IsValid(Instance))
+	{
+		ActivityInstances.RemoveSwap(Instance);
+		BroadcastMessage(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(Instance, Instance->ActivityState, EArcActivitySuccessState::InProgress));
+
+	}
+
+}
+
 namespace Arc
 {
 	namespace ActivityWorldSubsystem

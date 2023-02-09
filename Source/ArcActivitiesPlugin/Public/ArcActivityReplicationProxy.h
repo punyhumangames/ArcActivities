@@ -29,6 +29,8 @@ struct FArcActivityReplicationEntry : public FFastArraySerializerItem
 	UPROPERTY()
 	UArcActivityInstance* Activity;
 
+	TWeakObjectPtr<UArcActivityInstance> PreviousActivity;
+
 	
 	void PreReplicatedRemove(const struct FArcActivityReplicationArray& InArraySerializer);
 	void PostReplicatedAdd(const struct FArcActivityReplicationArray& InArraySerializer);
@@ -39,13 +41,28 @@ struct FArcActivityReplicationEntry : public FFastArraySerializerItem
 
 };
 
+class AArcActivityReplicationProxy;
+
 USTRUCT()
 struct FArcActivityReplicationArray : public FFastArraySerializer
 {
 	GENERATED_BODY()
 
+		FArcActivityReplicationArray(AArcActivityReplicationProxy* InRepProxy)
+		: RepProxy(InRepProxy)
+	{
+
+	}
+	FArcActivityReplicationArray()
+		: FArcActivityReplicationArray(nullptr)
+	{
+
+	}
+
 	UPROPERTY()
-	TArray<FArcActivityReplicationEntry>	Items;	
+	TArray<FArcActivityReplicationEntry>	Items;
+	UPROPERTY()
+	AArcActivityReplicationProxy* RepProxy;
 
 		/** Step 4: Copy this, replace example with your names */
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)

@@ -88,6 +88,8 @@ class ARCACTIVITIESPLUGIN_API UArcActivityWorldSubsystem : public UWorldSubsyste
 	GENERATED_BODY()
 public:
 	friend class UArcAsyncAction_ListenForEvent;
+	friend struct FArcActivityReplicationEntry;
+
 	static UArcActivityWorldSubsystem& Get(const UObject* WorldContextObject);
 	static bool HasInstance(const UObject* WorldContextObject);
 
@@ -112,6 +114,9 @@ protected:
 private:
 
 	void OnActivityEndedEvent(UArcActivityInstance* Instance, bool bWasCancelled);
+
+	void NotifyAddedActivityFromReplication(UArcActivityInstance* Instance);
+	void NotifyRemovedActivityFromReplication(UArcActivityInstance* Instance);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity", meta = (AllowPrivateAccess))
 	TArray<TObjectPtr<UArcActivityInstance>> ActivityInstances;
