@@ -125,5 +125,5 @@ void FArcActivityReplicationEntry::PostReplicatedChange(const FArcActivityReplic
 
 FString FArcActivityReplicationEntry::GetDebugString()
 {
-	return FString();
+	return FString::Printf(TEXT("REPLICATED: %s"), *GetNameSafe(Activity));
 }
