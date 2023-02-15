@@ -82,6 +82,9 @@ public:
 	UFUNCTION()
 	virtual void OnRep_CurrentStage(UArcActivityStage* PreviousStage);
 
+	UFUNCTION(BlueprintCallable)
+	TArray<UArcActivityPlayerComponent*> GetPlayersInActivity() const;
+
 protected:
 	template<typename T>
 	void RaiseEvent(FGameplayTag Tag, const T& EventStruct)
@@ -121,8 +124,8 @@ private:
 	FGameplayTagContainer ActivityTags;
 
 	//TODO:FastArraySerialize this
-	UPROPERTY(BlueprintReadOnly, Category="Activity", meta=(AllowPrivateAccess), Replicated)
-	TArray<TObjectPtr<UArcActivityPlayerComponent>> PlayersInActivty;
+	UPROPERTY(Replicated)
+		FArcActivityPlayerArray PlayersInActivty;
 
 	//TODO:FastArraySerialize this
 	UPROPERTY(Replicated)

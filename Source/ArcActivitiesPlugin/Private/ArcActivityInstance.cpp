@@ -84,9 +84,12 @@ void UArcActivityInstance::EndActivity(bool bWasCancelled)
 
 	RaiseEvent(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(this, ActivityState, EArcActivitySuccessState::InProgress));
 
-	for (UArcActivityPlayerComponent* PlayerComp : PlayersInActivty)
+	for (const auto& PlayerComp : PlayersInActivty)
 	{
-		PlayerComp->OnPlayerLeftActivity_Internal(this, true);
+		if (IsValid(PlayerComp.Player))
+		{
+			PlayerComp.Player->OnPlayerLeftActivity_Internal(this, true);
+		}
 	}
 	
 	//End the tasks and destroy them
@@ -124,7 +127,7 @@ void UArcActivityInstance::AddPlayerToActivity(UArcActivityPlayerComponent* Play
 {
 	if (IsValid(Player))
 	{
-		PlayersInActivty.AddUnique(Player);
+		PlayersInActivty.Add(Player);
 		Player->OnPlayerJoinedActivity_Internal(this);
 
 		RaiseEvent(FArcActivityPlayerChangedEventTag, FArcActivityPlayerEventPayload(this, Player, EArcActivityPlayerEventType::PlayerJoined));
@@ -137,7 +140,7 @@ void UArcActivityInstance::RemovePlayerFromActivity(UArcActivityPlayerComponent*
 	{
 		RaiseEvent(FArcActivityPlayerChangedEventTag, FArcActivityPlayerEventPayload(this, Player, EArcActivityPlayerEventType::PlayerLeft));
 	
-		PlayersInActivty.RemoveSwap(Player);	
+		PlayersInActivty.Remove(Player);	
 		Player->OnPlayerLeftActivity_Internal(this);
 	}
 }
@@ -337,6 +340,18 @@ void UArcActivityInstance::ForEachObjectiveTracker_Mutable(ForEachObjectiveTrack
 void UArcActivityInstance::OnRep_CurrentStage(UArcActivityStage* PreviousStage)
 {
 
+}
+
+TArray<UArcActivityPlayerComponent*> UArcActivityInstance::GetPlayersInActivity() const
+{
+	TArray<UArcActivityPlayerComponent*> Components;
+	Components.Reserve(PlayersInActivty.Items.Num());
+
+	for (const auto& Player : PlayersInActivty)
+	{
+		Components.AddUnique(Player.Player);
+	}
+	return Components;
 }
 
 bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGameplayTagContainer& Tags)

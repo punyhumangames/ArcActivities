@@ -265,3 +265,87 @@ struct TStructOpsTypeTraits< FArcActivityTaskArray > : public TStructOpsTypeTrai
 		WithNetDeltaSerializer = true,
 	};
 };
+
+
+USTRUCT()
+struct FArcActivityPlayerEntry : public FFastArraySerializerItem
+{
+	GENERATED_BODY()
+
+		FArcActivityPlayerEntry()
+		: FArcActivityPlayerEntry(nullptr)
+	{
+	}
+
+	FArcActivityPlayerEntry(UArcActivityPlayerComponent* InPlayer)
+		: Super()
+		, Player(InPlayer)
+	{
+	}
+
+	UPROPERTY()
+		UArcActivityPlayerComponent* Player;
+
+
+	void PreReplicatedRemove(const struct FArcActivityPlayerArray& InArraySerializer);
+	void PostReplicatedAdd(const struct FArcActivityPlayerArray& InArraySerializer);
+	void PostReplicatedChange(const struct FArcActivityPlayerArray& InArraySerializer);
+
+	// Optional: debug string used with LogNetFastTArray logging
+	FString GetDebugString();
+
+};
+
+USTRUCT()
+struct FArcActivityPlayerArray : public FFastArraySerializer
+{
+	GENERATED_BODY()
+
+		FArcActivityPlayerArray(UArcActivityInstance* InOwner)
+		: Super()
+		, Owner(InOwner)
+	{
+
+	}
+
+	FArcActivityPlayerArray()
+		: FArcActivityPlayerArray(nullptr)
+	{
+
+	}
+
+	UPROPERTY()
+		UArcActivityInstance* Owner;
+
+	UPROPERTY()
+		TArray<FArcActivityPlayerEntry>	Items;
+
+	/** Step 4: Copy this, replace example with your names */
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
+	{
+		return FFastArraySerializer::FastArrayDeltaSerialize<FArcActivityPlayerEntry, FArcActivityPlayerArray>(Items, DeltaParms, *this);
+	}
+
+	void Add(UArcActivityPlayerComponent* Player);
+	void Remove(UArcActivityPlayerComponent* Player);
+
+	void Reset();
+
+	auto begin() { return Items.begin(); }
+	auto begin() const { return Items.begin(); }
+	auto end() { return Items.end(); }
+	auto end() const { return Items.end(); }
+	auto& operator[](int32 index) { return Items[index]; } \
+		const auto& operator[](int32 index) const { return Items[index]; }
+	int32 Num() const { return Items.Num(); }
+};
+
+/** Step 5: Copy and paste this struct trait, replacing FExampleArray with your Step 2 struct. */
+template<>
+struct TStructOpsTypeTraits< FArcActivityPlayerArray > : public TStructOpsTypeTraitsBase2< FArcActivityPlayerArray >
+{
+	enum
+	{
+		WithNetDeltaSerializer = true,
+	};
+};
