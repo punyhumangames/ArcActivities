@@ -369,6 +369,11 @@ bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGamepla
 	ActivityGraph = Graph;
 	EnterStage_Internal(ActivityGraph->InitialStage);
 
+	ForEachStageService_Mutable([](UArcActivityTask_StageService* StageService)
+	{
+		StageService->StageBegun(EArcActivitySuccessState::Success, nullptr);
+	});
+
 	RaiseEvent(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(this, EArcActivitySuccessState::InProgress, EArcActivitySuccessState::None));
 	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityStageChangedEventPayload(this, ActivityGraph->InitialStage, nullptr, EArcActivitySuccessState::None));
 
