@@ -204,7 +204,7 @@ bool UArcActivityInstance::TryProgressStage()
 
 		if (bObjectiveAnySuccess && TrackerState != EArcActivityObjectiveTrackerState::CompletedFail)
 		{
-			if (ObjState == EArcActivityObjectiveTrackerState::CompletedSuccess)
+			if (TrackerState == EArcActivityObjectiveTrackerState::CompletedSuccess)
 			{
 				ObjState = EArcActivityObjectiveTrackerState::CompletedSuccess;
 				continue;
@@ -215,7 +215,7 @@ bool UArcActivityInstance::TryProgressStage()
 		}
 		else if (bObjectiveAnyFail && TrackerState != EArcActivityObjectiveTrackerState::CompletedSuccess)
 		{
-			if (ObjState != EArcActivityObjectiveTrackerState::CompletedFail)
+			if (TrackerState == EArcActivityObjectiveTrackerState::CompletedFail)
 			{
 				ObjState = EArcActivityObjectiveTrackerState::CompletedFail;
 				continue;
