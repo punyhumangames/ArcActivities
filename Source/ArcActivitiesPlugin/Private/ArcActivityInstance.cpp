@@ -9,6 +9,7 @@
 #include "DataModel/ArcActivityStage.h"
 #include "ArcActivityPlayerComponent.h"
 #include "ArcActivityPlayerComponent.h"
+#include "ArcActivityReplicationProxy.h"
 
 #include "Net/UnrealNetwork.h"
 
@@ -18,34 +19,30 @@
 
 UArcActivityInstance::UArcActivityInstance()
 	: Super()
-	, CurrentGlobalStageServices(this)
-	, CurrentStageServices(this)
-	, CurrentObjectiveTrackers(this)
+	, PreviousStageCompletion(EArcActivitySuccessState::None)
+	, PlayersInActivty(this)
 {
+	TagStacks.OnTagCountChanged.AddUObject(this, &ThisClass::OnTagCountChanged);
 }
 
-bool UArcActivityInstance::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+UWorld* UArcActivityInstance::GetWorld() const
 {
-	bool bWroteSomething = false;
-
-	auto ServicePred = [&bWroteSomething, Channel, Bunch, RepFlags](UArcActivityTask_StageService* Service)
+	//If we're constructed from a RepProxy (in multiplayer environments), our world may not be directly set during construction
+	//So lets make sure we get our world from it
+	if (AArcActivityReplicationProxy* RepProxy = Cast<AArcActivityReplicationProxy>(GetOuter()))
 	{
-		bWroteSomething |= Channel->ReplicateSubobject(Service, *Bunch, *RepFlags);
-		bWroteSomething |= Service->ReplicateSubobjects(Channel, Bunch, RepFlags);
-	};
+		return RepProxy->GetWorld();
+	}
+	return World.Get();
+}
 
-	ForEachGlobalStageService_Mutable(ServicePred);
-	ForEachCurrentStageService_Mutable(ServicePred);
-
-	auto TrackerPred = [&bWroteSomething, Channel, Bunch, RepFlags](UArcActivityTask_ObjectiveTracker* Tracker)
+bool UArcActivityInstance::HasAuthority() const
+{
+	if (GetWorld()->GetNetMode() == NM_Client)
 	{
-		bWroteSomething |= Channel->ReplicateSubobject(Tracker, *Bunch, *RepFlags);
-		bWroteSomething |= Tracker->ReplicateSubobjects(Channel, Bunch, RepFlags);
-	};
-
-	ForEachObjectiveTracker_Mutable(TrackerPred);
-
-	return bWroteSomething;
+		return false;
+	}
+	return true;
 }
 
 void UArcActivityInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -56,10 +53,9 @@ void UArcActivityInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	DOREPLIFETIME_CONDITION(UArcActivityInstance, ActivityTags, COND_InitialOnly);
 	DOREPLIFETIME(UArcActivityInstance, CurrentStage);
 	DOREPLIFETIME(UArcActivityInstance, PlayersInActivty);
-	DOREPLIFETIME(UArcActivityInstance, CurrentGlobalStageServices);
-	DOREPLIFETIME(UArcActivityInstance, CurrentStageServices);
-	DOREPLIFETIME(UArcActivityInstance, CurrentObjectiveTrackers);
 	DOREPLIFETIME(UArcActivityInstance, ActivityState);
+	DOREPLIFETIME(UArcActivityInstance, PreviousStageCompletion);
+	DOREPLIFETIME(UArcActivityInstance, TagStacks);
 }
 
 bool UArcActivityInstance::IsActive() const
@@ -102,11 +98,13 @@ void UArcActivityInstance::EndActivity(bool bWasCancelled)
 			Tracker->EndPlay(bWasCancelled);
 		});
 
-
-	PlayersInActivty.Reset();
-	CurrentGlobalStageServices.Reset();
-	CurrentStageServices.Reset();
-	CurrentObjectiveTrackers.Reset();
+	if (HasAuthority())
+	{
+		PlayersInActivty.Reset();
+		CurrentGlobalStageServices.Reset();
+		CurrentStageServices.Reset();
+		CurrentObjectiveTrackers.Reset();
+	}
 
 	//Set this instance 
 	CurrentStage = nullptr;
@@ -127,9 +125,12 @@ void UArcActivityInstance::AddPlayerToActivity(UArcActivityPlayerComponent* Play
 {
 	if (IsValid(Player))
 	{
-		PlayersInActivty.Add(Player);
-		Player->OnPlayerJoinedActivity_Internal(this);
+		if (HasAuthority())
+		{
+			PlayersInActivty.Add(Player);
+		}
 
+		Player->OnPlayerJoinedActivity_Internal(this);
 		RaiseEvent(FArcActivityPlayerChangedEventTag, FArcActivityPlayerEventPayload(this, Player, EArcActivityPlayerEventType::PlayerJoined));
 	}
 }
@@ -140,13 +141,21 @@ void UArcActivityInstance::RemovePlayerFromActivity(UArcActivityPlayerComponent*
 	{
 		RaiseEvent(FArcActivityPlayerChangedEventTag, FArcActivityPlayerEventPayload(this, Player, EArcActivityPlayerEventType::PlayerLeft));
 	
-		PlayersInActivty.Remove(Player);	
+		if (HasAuthority())
+		{
+			PlayersInActivty.Remove(Player);
+		}
 		Player->OnPlayerLeftActivity_Internal(this);
 	}
 }
 
 bool UArcActivityInstance::TryProgressStage()
 {
+	if (!HasAuthority())
+	{
+		return false;
+	}
+
 	if (!IsValid(CurrentStage))
 	{
 		return false;
@@ -165,9 +174,8 @@ bool UArcActivityInstance::TryProgressStage()
 
 
 	//Check the status of the trackers
-	for (const auto& TrackerEnty : CurrentObjectiveTrackers)
-	{
-		auto Tracker = Cast<UArcActivityTask_ObjectiveTracker>(TrackerEnty.Task);
+	for (auto Tracker : CurrentObjectiveTrackers)
+	{		
 		if (!IsValid(Tracker))
 		{
 			continue;
@@ -272,44 +280,44 @@ bool UArcActivityInstance::TryProgressStage()
 
 void UArcActivityInstance::ForEachGlobalStageService(ConstForEachStageServiceFunc Func) const
 {
-	for (const auto& StageService : CurrentGlobalStageServices)
+	for (auto StageService : CurrentStageServices)
 	{
-		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
+		if (IsValid(StageService))
 		{
-			Func(Service);
+			Func(StageService);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachCurrentStageService(ConstForEachStageServiceFunc Func) const
 {
-	for (const auto& StageService : CurrentStageServices)
+	for (auto StageService : CurrentStageServices)
 	{
-		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
+		if (IsValid(StageService))
 		{
-			Func(Service);
+			Func(StageService);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachGlobalStageService_Mutable(ForEachStageServiceFunc Func) const
 {
-	for (const auto& StageService : CurrentGlobalStageServices)
+	for (auto StageService : CurrentGlobalStageServices)
 	{
-		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
+		if (IsValid(StageService))
 		{
-			Func(Service);
+			Func(StageService);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachCurrentStageService_Mutable(ForEachStageServiceFunc Func) const
 {
-	for (const auto& StageService : CurrentStageServices)
+	for (auto StageService : CurrentGlobalStageServices)
 	{
-		if (auto Service = Cast<UArcActivityTask_StageService>(StageService.Task))
+		if (IsValid(StageService))
 		{
-			Func(Service);
+			Func(StageService);
 		}
 	}
 }
@@ -317,29 +325,34 @@ void UArcActivityInstance::ForEachCurrentStageService_Mutable(ForEachStageServic
 
 void UArcActivityInstance::ForEachObjectiveTracker(ConstForEachObjectiveTrackerFunc Func) const
 {
-	for (const auto& Tracker : CurrentObjectiveTrackers)
+	for (auto Tracker : CurrentObjectiveTrackers)
 	{
-		if (auto TrackerTask = Cast<UArcActivityTask_ObjectiveTracker>(Tracker.Task))
+		if (IsValid(Tracker))
 		{
-			Func(TrackerTask);
+			Func(Tracker);
 		}
 	}
 }
 
 void UArcActivityInstance::ForEachObjectiveTracker_Mutable(ForEachObjectiveTrackerFunc Func) const
 {
-	for (const auto& Tracker : CurrentObjectiveTrackers)
+	for (auto Tracker : CurrentObjectiveTrackers)
 	{
-		if (auto TrackerTask = Cast<UArcActivityTask_ObjectiveTracker>(Tracker.Task))
+		if (IsValid(Tracker))
 		{
-			Func(TrackerTask);
+			Func(Tracker);
 		}
 	}
 }
 
 void UArcActivityInstance::OnRep_CurrentStage(UArcActivityStage* PreviousStage)
 {
-
+	if (!IsValid(PreviousStage))
+	{
+		RaiseEvent(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(this, EArcActivitySuccessState::InProgress, EArcActivitySuccessState::None));
+	}			
+	RaiseEvent(FArcActivityStageChangedEventTag, FArcActivityStageChangedEventPayload(this, CurrentStage, PreviousStage, PreviousStageCompletion));
+	
 }
 
 TArray<UArcActivityPlayerComponent*> UArcActivityInstance::GetPlayersInActivity() const
@@ -352,6 +365,36 @@ TArray<UArcActivityPlayerComponent*> UArcActivityInstance::GetPlayersInActivity(
 		Components.AddUnique(Player.Player);
 	}
 	return Components;
+}
+
+void UArcActivityInstance::AddStatTagStack(FGameplayTag Tag, int32 StackCount)
+{
+	TagStacks.AddStack(Tag, StackCount);
+}
+
+void UArcActivityInstance::RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)
+{
+	TagStacks.RemoveStack(Tag, StackCount);
+}
+
+void UArcActivityInstance::SetStatTagStack(FGameplayTag Tag, int32 StackCount)
+{
+	TagStacks.SetStack(Tag, StackCount);
+}
+
+int32 UArcActivityInstance::GetStatTagStackCount(FGameplayTag Tag) const
+{
+	return TagStacks.GetStackCount(Tag);
+}
+
+bool UArcActivityInstance::HasStatTag(FGameplayTag Tag) const
+{
+	return TagStacks.ContainsTag(Tag);
+}
+
+void UArcActivityInstance::OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const
+{
+	RaiseEvent(FArcActivityTagStackChangedEventTag, FArcActivityTagStackChanged( const_cast<UArcActivityInstance*>(this), Tag, CurrentValue, PreviousValue ));
 }
 
 bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGameplayTagContainer& Tags)
@@ -407,7 +450,7 @@ void UArcActivityInstance::ProgressStage_Internal(EArcActivitySuccessState Trans
 			});
 		ExitStage_Internal(CurrentStage);
 	}
-
+	PreviousStageCompletion = Transition;
 	CurrentStage = nullptr;
 	
 	if (IsValid(NextStage))
@@ -435,29 +478,32 @@ void UArcActivityInstance::ProgressStage_Internal(EArcActivitySuccessState Trans
 void UArcActivityInstance::EnterStage_Internal(UArcActivityStage* Stage)
 {
 	CurrentStage = Stage;
-	for (auto* Service : Stage->StageServices)
+	if (HasAuthority())
 	{
-		auto NewService = DuplicateObject(Service, this);
-		NewService->OwningStage = Stage;
-		CurrentStageServices.Add(NewService);
-	}
-	for (auto Objective : Stage->Objectives)
-	{
-		if (IsValidChecked(Objective))
-		{			
-			for (auto Tracker : Objective->ObjectiveTrackers)
+		for (auto* Service : Stage->StageServices)
+		{
+			auto NewService = DuplicateObject(Service, this);
+			NewService->OwningStage = Stage;
+			CurrentStageServices.Add(NewService);
+		}
+		for (auto Objective : Stage->Objectives)
+		{
+			if (IsValidChecked(Objective))
 			{
-				if (IsValidChecked(Tracker))
+				for (auto Tracker : Objective->ObjectiveTrackers)
 				{
-					UArcActivityTask_ObjectiveTracker* NewTracker = DuplicateObject(Tracker, this);
-					NewTracker->Objective = Objective;
-					NewTracker->OnTrackerStateUpdated.AddUObject(this, &ThisClass::TrackerUpdated_Internal);
-					CurrentObjectiveTrackers.Add(NewTracker);
+					if (IsValidChecked(Tracker))
+					{
+						UArcActivityTask_ObjectiveTracker* NewTracker = DuplicateObject(Tracker, this);
+						NewTracker->Objective = Objective;
+						NewTracker->OnTrackerStateUpdated.AddUObject(this, &ThisClass::TrackerUpdated_Internal);
+						CurrentObjectiveTrackers.Add(NewTracker);
+					}
 				}
 			}
 		}
 	}
-
+	
 	ForEachCurrentStageService_Mutable([](UArcActivityTask_StageService* StageService)
 	{
 		StageService->BeginPlay();
@@ -483,18 +529,17 @@ void UArcActivityInstance::ExitStage_Internal(UArcActivityStage* Stage)
 		Tracker->OnTrackerStateUpdated.RemoveAll(this);
 	});
 
-	CurrentStage = nullptr;
-	CurrentStageServices.Reset();
-	CurrentObjectiveTrackers.Reset();
+	if (HasAuthority())
+	{
+		CurrentStage = nullptr;
+		CurrentStageServices.Reset();
+		CurrentObjectiveTrackers.Reset();
+	}
 }
 
 void UArcActivityInstance::TrackerUpdated_Internal(UArcActivityTask_ObjectiveTracker* Tracker)
 {
-	const auto TrackerPred = [Tracker](const FArcActivityTaskEntry& Entry)
-	{
-		return Entry.Task == Tracker;
-	};
-	if (CurrentObjectiveTrackers.Items.ContainsByPredicate(TrackerPred))
+	if (CurrentObjectiveTrackers.Contains(Tracker))
 	{
 		TryProgressStage();
 	}

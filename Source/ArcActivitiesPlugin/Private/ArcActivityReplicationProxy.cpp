@@ -29,7 +29,6 @@ bool AArcActivityReplicationProxy::ReplicateSubobjects(UActorChannel* Channel, F
 		if (IsValid(Instance.Activity))
 		{
 			bWroteSomething |= Channel->ReplicateSubobject(Instance.Activity, *Bunch, *RepFlags);
-			bWroteSomething |= Instance.Activity->ReplicateSubobjects(Channel, Bunch, RepFlags);
 		}
 	}
 

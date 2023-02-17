@@ -17,8 +17,6 @@ class UArcActivityTask_ObjectiveTracker;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FArcActivityDelegateEnded, UArcActivityInstance* /* Instnace */, bool /* bWasCancelled */)
 
-
-
 /**
  * 
  */
@@ -31,11 +29,12 @@ public:
 
 	UArcActivityInstance();
 
-	virtual class UWorld* GetWorld() const override { return World.Get(); }
+	virtual class UWorld* GetWorld() const override;
+
+	bool HasAuthority() const;
 
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual bool IsNameStableForNetworking() const override { return false; }
-	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags);
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	bool IsActive() const;
@@ -85,9 +84,32 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<UArcActivityPlayerComponent*> GetPlayersInActivity() const;
 
+	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Arc|Activity")
+	void AddStatTagStack(FGameplayTag Tag, int32 StackCount);
+
+	// Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Arc|Activity")
+	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount);
+
+	// Sets a stat tag stack
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Arc|Activity")
+	void SetStatTagStack(FGameplayTag Tag, int32 StackCount);
+
+	// Returns the stack count of the specified tag (or 0 if the tag is not present)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
+	int32 GetStatTagStackCount(FGameplayTag Tag) const;
+
+	// Returns true if there is at least one stack of the specified tag
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
+	bool HasStatTag(FGameplayTag Tag) const;
+
+
 protected:
+	void OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const;
+
 	template<typename T>
-	void RaiseEvent(FGameplayTag Tag, const T& EventStruct)
+	void RaiseEvent(FGameplayTag Tag, const T& EventStruct) const
 	{
 		if (IsValid(GetWorld()))
 		{
@@ -113,34 +135,37 @@ private:
 
 	TWeakObjectPtr<UWorld> World;
 
+
+
+	UPROPERTY(Replicated)
+		EArcActivitySuccessState ActivityState;
+
+	UPROPERTY(Replicated)
+		EArcActivitySuccessState PreviousStageCompletion;
+
 	UPROPERTY(Replicated)
 	TObjectPtr<UArcActivity> ActivityGraph;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity", meta = (AllowPrivateAccess), ReplicatedUsing = OnRep_CurrentStage)
 	TObjectPtr<UArcActivityStage> CurrentStage;
 
+	UPROPERTY(Replicated)
+	FArcActivityTagStackContainer TagStacks;
 	
 	UPROPERTY(Replicated)
 	FGameplayTagContainer ActivityTags;
 
-	//TODO:FastArraySerialize this
 	UPROPERTY(Replicated)
-		FArcActivityPlayerArray PlayersInActivty;
+	FArcActivityPlayerArray PlayersInActivty;
 
-	//TODO:FastArraySerialize this
-	UPROPERTY(Replicated)
-	FArcActivityTaskArray CurrentGlobalStageServices;
+	UPROPERTY()
+	TArray<UArcActivityTask_StageService*> CurrentGlobalStageServices;
 
-	//TODO:FastArraySerialize this
-	UPROPERTY(Replicated)
-	FArcActivityTaskArray CurrentStageServices;
+	UPROPERTY()
+	TArray<UArcActivityTask_StageService*> CurrentStageServices;
+	
+	UPROPERTY()
+	TArray<UArcActivityTask_ObjectiveTracker*> CurrentObjectiveTrackers;
 
-	//TODO:FastArraySerialize this
-	UPROPERTY(Replicated)
-	FArcActivityTaskArray CurrentObjectiveTrackers;
-
-
-	UPROPERTY(Replicated)
-	EArcActivitySuccessState ActivityState;
 	
 };

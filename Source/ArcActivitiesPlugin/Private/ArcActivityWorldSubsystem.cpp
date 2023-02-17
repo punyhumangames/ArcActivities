@@ -166,6 +166,7 @@ void UArcActivityWorldSubsystem::NotifyAddedActivityFromReplication(UArcActivity
 {
 	if (IsValid(Instance))
 	{
+		Instance->World = GetWorld();
 		ActivityInstances.Add(Instance);
 		BroadcastMessage(FArcActivityStateChangedEventTag, FArcActivityActivityStateChanged(Instance, EArcActivitySuccessState::InProgress, EArcActivitySuccessState::None));
 		BroadcastMessage(FArcActivityStageChangedEventTag, FArcActivityStageChangedEventPayload(Instance, Instance->CurrentStage, nullptr, EArcActivitySuccessState::None));

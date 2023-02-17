@@ -12,6 +12,18 @@
 ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityStateChangedEventTag);
 ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityStageChangedEventTag);
 ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityPlayerChangedEventTag);
+ARCACTIVITIESPLUGIN_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FArcActivityTagStackChangedEventTag);
+
+#define ARC_ACT_FASTARRAYSERIALIZER_TARRAY_ACCESSORS(PropertyName) \
+		auto begin() { return PropertyName.begin(); }	\
+		auto begin() const { return PropertyName.begin(); } \
+		auto end() { return PropertyName.end(); } \
+		auto end() const { return PropertyName.end(); } \
+		auto& operator[](int32 index) { return PropertyName[index]; } \
+		const auto& operator[](int32 index) const { return PropertyName[index]; } \
+		int32 Num() const { return PropertyName.Num(); } 
+
+
 
 class UArcActivityTask_Base;
 
@@ -150,6 +162,33 @@ struct FArcActivityStageChangedEventPayload
 	}
 };
 
+
+USTRUCT(BlueprintType)
+struct FArcActivityTagStackChanged
+{
+	GENERATED_BODY()
+
+	FArcActivityTagStackChanged() { }
+
+	FArcActivityTagStackChanged(UArcActivityInstance* InInstance, FGameplayTag InTag, int32 InCurrentValue, int32 InPreviousValue)
+		: Activity(InInstance)
+		, Tag(InTag)
+		, CurrentValue(InCurrentValue)
+		, PreviousValue(InPreviousValue)
+	{
+
+	}
+
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+		UArcActivityInstance* Activity;
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+		FGameplayTag Tag;
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+		int32 CurrentValue;
+	UPROPERTY(BlueprintReadOnly, Category = "Activity")
+		int32 PreviousValue;
+};
+
 UENUM(BlueprintType)
 enum class EArcActivityPlayerEventType : uint8
 {
@@ -184,87 +223,100 @@ struct FArcActivityPlayerEventPayload
 	}
 };
 
-USTRUCT()
-struct FArcActivityTaskEntry : public FFastArraySerializerItem
+USTRUCT(BlueprintType)
+struct FArcActivityTagStack : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
-		FArcActivityTaskEntry()
-		: FArcActivityTaskEntry(nullptr)
+	FArcActivityTagStack()
+	{}
+
+	FArcActivityTagStack(FGameplayTag InTag, int32 InStackCount)
+		: Tag(InTag)
+		, StackCount(InStackCount)
 	{
 	}
 
-	FArcActivityTaskEntry(UArcActivityTask_Base* InTask)
-		: Super()
-		, Task(InTask)
-	{
-	}
+	FString GetDebugString() const;
+
+private:
+	friend struct FArcActivityTagStackContainer;
 
 	UPROPERTY()
-	UArcActivityTask_Base* Task;
+		FGameplayTag Tag;
 
-
-	void PreReplicatedRemove(const struct FArcActivityTaskArray& InArraySerializer);
-	void PostReplicatedAdd(const struct FArcActivityTaskArray& InArraySerializer);
-	void PostReplicatedChange(const struct FArcActivityTaskArray& InArraySerializer);
-
-	// Optional: debug string used with LogNetFastTArray logging
-	FString GetDebugString();
-
+	UPROPERTY()
+		int32 StackCount = 0;
 };
 
-USTRUCT()
-struct FArcActivityTaskArray : public FFastArraySerializer
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FArcActivityTagStackContainerChanged, FGameplayTag, int32, int32)
+
+USTRUCT(BlueprintType)
+struct FArcActivityTagStackContainer : public FFastArraySerializer
 {
 	GENERATED_BODY()
 
-	FArcActivityTaskArray(UArcActivityInstance* InOwner)
-		: Super()
-		, Owner(InOwner)
+	FArcActivityTagStackContainer()
 	{
-
 	}
 
-	FArcActivityTaskArray()
-		: FArcActivityTaskArray(nullptr)
-	{
+public:
+	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
+	void AddStack(FGameplayTag Tag, int32 StackCount);
 
+	// Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
+	void RemoveStack(FGameplayTag Tag, int32 StackCount);
+
+	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
+	void SetStack(FGameplayTag Tag, int32 StackCount);
+
+	// Returns the stack count of the specified tag (or 0 if the tag is not present)
+	int32 GetStackCount(FGameplayTag Tag) const
+	{
+		return TagToCountMap.FindRef(Tag);
 	}
 
-	UPROPERTY()
-	UArcActivityInstance* Owner;
+	// Returns true if there is at least one stack of the specified tag
+	bool ContainsTag(FGameplayTag Tag) const
+	{
+		return TagToCountMap.Contains(Tag);
+	}
 
-	UPROPERTY()
-	TArray<FArcActivityTaskEntry>	Items;
+	void RebuildTagToCountMap();
 
-	/** Step 4: Copy this, replace example with your names */
+	//~FFastArraySerializer contract
+	void PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize);
+	void PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize);
+	void PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize);
+	//~End of FFastArraySerializer contract
+
+	FArcActivityTagStackContainerChanged OnTagCountChanged;
+
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 	{
-		return FFastArraySerializer::FastArrayDeltaSerialize<FArcActivityTaskEntry, FArcActivityTaskArray>(Items, DeltaParms, *this);
+		return FFastArraySerializer::FastArrayDeltaSerialize<FArcActivityTagStack, FArcActivityTagStackContainer>(Stacks, DeltaParms, *this);
 	}
 
-	void Add(UArcActivityTask_Base* Service);
+	ARC_ACT_FASTARRAYSERIALIZER_TARRAY_ACCESSORS(Stacks)
 
-	void Reset();
+private:
+	// Replicated list of gameplay tag stacks
+	UPROPERTY()
+	TArray<FArcActivityTagStack> Stacks;
 
-	auto begin() { return Items.begin(); }
-	auto begin() const { return Items.begin(); }
-	auto end() { return Items.end(); }
-	auto end() const { return Items.end(); }
-	auto& operator[](int32 index) { return Items[index]; } \
-		const auto& operator[](int32 index) const { return Items[index]; }
-	int32 Num() const { return Items.Num(); }
+	// Accelerated list of tag stacks for queries
+	TMap<FGameplayTag, int32> TagToCountMap;
 };
 
-/** Step 5: Copy and paste this struct trait, replacing FExampleArray with your Step 2 struct. */
 template<>
-struct TStructOpsTypeTraits< FArcActivityTaskArray > : public TStructOpsTypeTraitsBase2< FArcActivityTaskArray >
+struct TStructOpsTypeTraits<FArcActivityTagStackContainer> : public TStructOpsTypeTraitsBase2<FArcActivityTagStackContainer>
 {
 	enum
 	{
 		WithNetDeltaSerializer = true,
 	};
 };
+
 
 
 USTRUCT()
@@ -285,6 +337,10 @@ struct FArcActivityPlayerEntry : public FFastArraySerializerItem
 
 	UPROPERTY()
 		UArcActivityPlayerComponent* Player;
+
+	UPROPERTY(Transient)
+	UArcActivityPlayerComponent* PreviousPlayer;
+
 
 
 	void PreReplicatedRemove(const struct FArcActivityPlayerArray& InArraySerializer);
@@ -331,13 +387,7 @@ struct FArcActivityPlayerArray : public FFastArraySerializer
 
 	void Reset();
 
-	auto begin() { return Items.begin(); }
-	auto begin() const { return Items.begin(); }
-	auto end() { return Items.end(); }
-	auto end() const { return Items.end(); }
-	auto& operator[](int32 index) { return Items[index]; } \
-		const auto& operator[](int32 index) const { return Items[index]; }
-	int32 Num() const { return Items.Num(); }
+	ARC_ACT_FASTARRAYSERIALIZER_TARRAY_ACCESSORS(Items)
 };
 
 /** Step 5: Copy and paste this struct trait, replacing FExampleArray with your Step 2 struct. */
@@ -349,3 +399,7 @@ struct TStructOpsTypeTraits< FArcActivityPlayerArray > : public TStructOpsTypeTr
 		WithNetDeltaSerializer = true,
 	};
 };
+
+
+
+#undef ARC_ACT_FASTARRAYSERIALIZER_TARRAY_ACCESSORS
