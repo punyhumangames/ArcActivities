@@ -9,6 +9,7 @@
 
 class UArcActivityObjective;
 class UArcActivityTask_StageService;
+class UArcActivityUIObject;
 
 /**
  * 
@@ -42,5 +43,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Activity")
 	TArray<UArcActivityTask_StageService*> StageServices;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI", Instanced)
+	TObjectPtr<UArcActivityUIObject> UIData;
 	
 };
