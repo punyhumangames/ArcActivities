@@ -280,7 +280,7 @@ bool UArcActivityInstance::TryProgressStage()
 
 void UArcActivityInstance::ForEachGlobalStageService(ConstForEachStageServiceFunc Func) const
 {
-	for (auto StageService : CurrentStageServices)
+	for (auto StageService : CurrentGlobalStageServices)
 	{
 		if (IsValid(StageService))
 		{
@@ -313,7 +313,7 @@ void UArcActivityInstance::ForEachGlobalStageService_Mutable(ForEachStageService
 
 void UArcActivityInstance::ForEachCurrentStageService_Mutable(ForEachStageServiceFunc Func) const
 {
-	for (auto StageService : CurrentGlobalStageServices)
+	for (auto StageService : CurrentStageServices)
 	{
 		if (IsValid(StageService))
 		{
