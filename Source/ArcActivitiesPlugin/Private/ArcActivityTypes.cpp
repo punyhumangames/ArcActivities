@@ -176,9 +176,9 @@ void FArcActivityPlayerEntry::PostReplicatedAdd(const FArcActivityPlayerArray& I
 
 void FArcActivityPlayerEntry::PostReplicatedChange(const FArcActivityPlayerArray& InArraySerializer)
 {
-	if(IsValid(PreviousPlayer) && IsValid(InArraySerializer.Owner))
+	if(PreviousPlayer.IsValid() && IsValid(InArraySerializer.Owner))
 	{
-		InArraySerializer.Owner->RemovePlayerFromActivity(PreviousPlayer);
+		InArraySerializer.Owner->RemovePlayerFromActivity(PreviousPlayer.Get());
 	}
 	if (IsValid(Player) && IsValid(InArraySerializer.Owner))
 	{

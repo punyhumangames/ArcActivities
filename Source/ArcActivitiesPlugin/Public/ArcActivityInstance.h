@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "ArcActivityTypes.h"
 #include "ArcActivityWorldSubsystem.h"
+#include "GameplayTagAssetInterface.h"
 #include "ArcActivityInstance.generated.h"
 
 class UArcActivity;
@@ -21,11 +22,13 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FArcActivityDelegateEnded, UArcActivityInst
  * 
  */
 UCLASS(BlueprintType)
-class ARCACTIVITIESPLUGIN_API UArcActivityInstance : public UObject
+class ARCACTIVITIESPLUGIN_API UArcActivityInstance : public UObject, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 public:
 	friend class UArcActivityWorldSubsystem;
+
+	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const;
 
 	UArcActivityInstance();
 

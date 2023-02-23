@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "GameplayTagContainer.h"
+#include "GameplayTagAssetInterface.h"
 #include "ArcActivity.generated.h"
 
 class UArcActivityStage;
@@ -14,11 +16,16 @@ class UEdGraph;
  * 
  */
 UCLASS()
-class ARCACTIVITIESPLUGIN_API UArcActivity : public UPrimaryDataAsset
+class ARCACTIVITIESPLUGIN_API UArcActivity : public UPrimaryDataAsset, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 public:
 	UArcActivity(const FObjectInitializer& ObjectInitializer);
+
+	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+	{
+		TagContainer.AppendTags(Tags);
+	}
 
 	UPROPERTY(VisibleAnywhere, Category = "Activity")
 	UArcActivityStage* InitialStage;
@@ -29,6 +36,9 @@ public:
 	//Global Stage Services for this activity. 
 	UPROPERTY(VisibleAnywhere, Category = "Activity")
 	TArray<UArcActivityTask_StageService*> StageServices;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Activity")
+	FGameplayTagContainer Tags;
 
 #if WITH_EDITORONLY_DATA
 	//Graph Representation

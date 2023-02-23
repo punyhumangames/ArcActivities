@@ -17,6 +17,16 @@
 #include "Engine/NetDriver.h"
 #include "Engine/NetConnection.h"
 
+void UArcActivityInstance::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+{
+	if (IsValid(ActivityGraph))
+	{
+		ActivityGraph->GetOwnedGameplayTags(TagContainer);
+	}
+	
+	TagContainer.AppendTags(ActivityTags);	
+}
+
 UArcActivityInstance::UArcActivityInstance()
 	: Super()
 	, PreviousStageCompletion(EArcActivitySuccessState::None)
@@ -408,7 +418,8 @@ bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGamepla
 		UE_LOG(LogActivitiesPlugin, Error, TEXT("Cannot Start Activity Instance for activity %s: It doesn't have an initial stage"), *GetNameSafe(Graph));
 		return false;
 	}
-
+	
+	ActivityTags.AppendTags(Tags);
 	ActivityGraph = Graph;
 	EnterStage_Internal(ActivityGraph->InitialStage);
 

@@ -338,8 +338,7 @@ struct FArcActivityPlayerEntry : public FFastArraySerializerItem
 	UPROPERTY()
 		UArcActivityPlayerComponent* Player;
 
-	UPROPERTY(Transient)
-	UArcActivityPlayerComponent* PreviousPlayer;
+	TWeakObjectPtr<UArcActivityPlayerComponent> PreviousPlayer;
 
 
 

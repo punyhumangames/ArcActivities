@@ -145,6 +145,28 @@ void UArcActivityWorldSubsystem::CancelActivity(UArcActivityInstance* Activity)
     }
 }
 
+void UArcActivityWorldSubsystem::ForEachActivity(TFunctionRef<ForEachActivityPredicate> Pred) const
+{
+	for (const UArcActivityInstance* Instance : ActivityInstances)
+	{
+		if (IsValid(Instance))
+		{
+			Pred(Instance);
+		}
+	}
+}
+
+void UArcActivityWorldSubsystem::ForEachActivity_Mutable(TFunctionRef<ForEachActivityPredicate_Mutable> Pred) const
+{
+	for (UArcActivityInstance* Instance : ActivityInstances)
+	{
+		if (IsValid(Instance))
+		{
+			Pred(Instance);
+		}
+	}
+}
+
 
 bool UArcActivityWorldSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
 {

@@ -19,6 +19,8 @@
 #include "UObject/WeakObjectPtr.h"
 #include "UObject/WeakObjectPtrTemplates.h"
 
+#include "ArcActivityTypes.h"
+
 #include "ArcActivityWorldSubsystem.generated.h"
 
 class UArcActivity;
@@ -107,6 +109,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void CancelActivity(UArcActivityInstance* Activity);
+
+	using ForEachActivityPredicate = void(const UArcActivityInstance*);
+	void ForEachActivity(TFunctionRef<ForEachActivityPredicate> Pred) const;
+
+	using ForEachActivityPredicate_Mutable = void(UArcActivityInstance*);
+	void ForEachActivity_Mutable(TFunctionRef<ForEachActivityPredicate_Mutable> Pred) const;
 
 protected:
 	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
