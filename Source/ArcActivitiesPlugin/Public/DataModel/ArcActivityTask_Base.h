@@ -8,6 +8,7 @@
 
 class UArcActivityInstance;
 class UArcActivity;
+class UArcActivityWorldSubsystem;
 
 /**
  * 
@@ -33,6 +34,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Arc|Activity")
 	UArcActivity* GetActivityAsset() const;
+
+	UArcActivityWorldSubsystem* GetSubsystem() const;
 
 	UFUNCTION(BlueprintNativeEvent)
 	void EndPlay(bool Canceled);

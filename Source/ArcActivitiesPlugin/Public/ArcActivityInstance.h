@@ -107,6 +107,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	bool HasStatTag(FGameplayTag Tag) const;
 
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
+	void ClearStatTag(FGameplayTag Tag);
+
 
 protected:
 	void OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const;

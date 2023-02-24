@@ -1,8 +1,10 @@
 // 2017-2018 Puny Human Games
 
 #include "DataModel/ArcActivityTask_Base.h"
+#include "EngineMinimal.h"
 #include "DataModel/ArcActivity.h"
 #include "ArcActivityInstance.h"
+#include "ArcActivityWorldSubsystem.h"
 
 
 
@@ -28,4 +30,13 @@ UArcActivityInstance* UArcActivityTask_Base::GetActivityInstance() const
 UArcActivity* UArcActivityTask_Base::GetActivityAsset() const
 {
 	return ActivityAsset;
+}
+
+UArcActivityWorldSubsystem* UArcActivityTask_Base::GetSubsystem() const
+{
+	if (!IsValid(GetWorld()))
+	{
+		return nullptr;
+	}
+	return GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>();
 }

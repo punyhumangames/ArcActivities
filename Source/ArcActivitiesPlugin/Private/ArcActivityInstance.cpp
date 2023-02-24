@@ -402,6 +402,11 @@ bool UArcActivityInstance::HasStatTag(FGameplayTag Tag) const
 	return TagStacks.ContainsTag(Tag);
 }
 
+void UArcActivityInstance::ClearStatTag(FGameplayTag Tag)
+{
+	TagStacks.ClearStack(Tag);
+}
+
 void UArcActivityInstance::OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const
 {
 	RaiseEvent(FArcActivityTagStackChangedEventTag, FArcActivityTagStackChanged( const_cast<UArcActivityInstance*>(this), Tag, CurrentValue, PreviousValue ));

@@ -114,6 +114,28 @@ void FArcActivityTagStackContainer::SetStack(FGameplayTag Tag, int32 StackCount)
 	}
 }
 
+void FArcActivityTagStackContainer::ClearStack(FGameplayTag Tag)
+{
+	if (!Tag.IsValid())
+	{
+		FFrame::KismetExecutionMessage(TEXT("An invalid tag was passed to Clear Stack"), ELogVerbosity::Warning);
+		return;
+	}
+
+
+	for (auto It = Stacks.CreateIterator(); It; ++It)
+	{
+		FArcActivityTagStack& Stack = *It;
+		if (Stack.Tag == Tag)
+		{
+			OnTagCountChanged.Broadcast(Tag, 0, Stack.StackCount);
+			It.RemoveCurrent();
+			TagToCountMap.Remove(Tag);
+			MarkArrayDirty();
+		}
+	}
+}
+
 void FArcActivityTagStackContainer::RebuildTagToCountMap()
 {
 	TagToCountMap.Empty(Stacks.Num());

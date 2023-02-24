@@ -9,6 +9,8 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FArcObjectiveTrackerStateUpdated, UArcActivityTask_ObjectiveTracker* /*Tracker*/);
 
+class UArcActivityObjective;
+
 /**
  * 
  */
