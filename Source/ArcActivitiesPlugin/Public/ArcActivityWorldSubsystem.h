@@ -81,6 +81,11 @@ struct FArcActivityMessageListenerData
 	bool bHadValidType = false;
 };
 
+namespace FActivityWorld
+{
+	struct FActivityScopeLock;
+}
+
 /**
  * 
  */
@@ -91,6 +96,10 @@ class ARCACTIVITIESPLUGIN_API UArcActivityWorldSubsystem : public UWorldSubsyste
 public:
 	friend class UArcAsyncAction_ListenForEvent;
 	friend struct FArcActivityReplicationEntry;
+	friend struct FActivityWorld::FActivityScopeLock;
+
+	UArcActivityWorldSubsystem();
+
 
 	static UArcActivityWorldSubsystem& Get(const UObject* WorldContextObject);
 	static bool HasInstance(const UObject* WorldContextObject);
@@ -214,6 +223,15 @@ public:
 		return Handle;
 	}
 
+	//Exposed the internal registration function.  Try not to call this but it can be helpful in some cases
+	FArcActivityMessageListenerHandle UNSAFE_DANGER_RegisterListenerInternal(FGameplayTag Channel,
+		TFunction<void(FGameplayTag, const UScriptStruct*, const void*)>&& Callback,
+		const UScriptStruct* StructType,
+		EArcActivityMessageMatch MatchType)
+	{
+		return RegisterListenerInternal(Channel, Forward<TFunction<void(FGameplayTag, const UScriptStruct*, const void*)>>(Callback), StructType, MatchType);
+	}
+
 	/**
 	 * Remove a message listener previously registered by RegisterListener
 	 *
@@ -248,4 +266,7 @@ private:
 
 	TMap<FGameplayTag, FArcChannelListenerList> ListenerMap;
 
+	int32 ScopeLocks;
+
+	TArray<TFunction<void(UArcActivityWorldSubsystem*)>> LockQueuedActions;
 };

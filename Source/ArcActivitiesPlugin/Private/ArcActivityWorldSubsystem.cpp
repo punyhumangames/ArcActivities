@@ -13,6 +13,34 @@
 
 #include "ArcActivityReplicationProxy.h"
 
+namespace FActivityWorld
+{
+	struct FActivityScopeLock
+	{
+		FActivityScopeLock(UArcActivityWorldSubsystem* InSubsys)
+			: Subsys(InSubsys)
+		{
+			Subsys->ScopeLocks++;
+		}
+
+		~FActivityScopeLock()
+		{
+			Subsys->ScopeLocks--;
+			if (Subsys->ScopeLocks == 0)
+			{
+				//Run the actions that were saved
+				for (const auto& Action : Subsys->LockQueuedActions)
+				{
+					Action(Subsys);
+				}
+				Subsys->LockQueuedActions.Reset();
+			}
+		}
+
+		UArcActivityWorldSubsystem* Subsys;
+	};
+}
+
 void FArcActivityMessageListenerHandle::Unregister()
 {
     if (UArcActivityWorldSubsystem* StrongSubsystem = Subsystem.Get())
@@ -25,6 +53,12 @@ void FArcActivityMessageListenerHandle::Unregister()
 }
 
 
+
+UArcActivityWorldSubsystem::UArcActivityWorldSubsystem()
+	: Super()
+{
+	ScopeLocks = 0;
+}
 
 UArcActivityWorldSubsystem &UArcActivityWorldSubsystem::Get(const UObject *WorldContextObject)
 {
@@ -58,17 +92,20 @@ void UArcActivityWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 void UArcActivityWorldSubsystem::Deinitialize()
 {
     ListenerMap.Reset();
+	{
+		FActivityWorld::FActivityScopeLock Lock(this);
 
-    for(UArcActivityInstance* Instance : ActivityInstances)
-    {
-		if (IsValid(Instance))
+		for (UArcActivityInstance* Instance : ActivityInstances)
 		{
-			Instance->OnActivityEnded.RemoveAll(this); //We don't want to hear the dying screams of these activities as we shut them down.
-			Instance->EndActivity(true);
+			if (IsValid(Instance))
+			{
+				Instance->OnActivityEnded.RemoveAll(this); //We don't want to hear the dying screams of these activities as we shut them down.
+				Instance->EndActivity(true);
+			}
+
 		}
-      
-    }
-    ActivityInstances.Reset();
+		ActivityInstances.Reset();
+	}
 
 	if (ReplicationProxy)
 	{
@@ -175,13 +212,25 @@ bool UArcActivityWorldSubsystem::DoesSupportWorldType(const EWorldType::Type Wor
 
 void UArcActivityWorldSubsystem::OnActivityEndedEvent(UArcActivityInstance* Instance, bool bWasCancelled)
 {
-    Instance->OnActivityEnded.RemoveAll(this);
-    ActivityInstances.Remove(Instance);
-
-	if (IsValid(ReplicationProxy))
+	auto RemoveAction = [Instance, bWasCancelled](UArcActivityWorldSubsystem* Subsys)
 	{
-		ReplicationProxy->RemoveReplicatedActivityInstance(Instance);
+		Instance->OnActivityEnded.RemoveAll(Subsys);
+		Subsys->ActivityInstances.Remove(Instance);
+
+		if (IsValid(Subsys->ReplicationProxy))
+		{
+			Subsys->ReplicationProxy->RemoveReplicatedActivityInstance(Instance);
+		}
+	};
+
+	if (ScopeLocks > 0)
+	{
+		LockQueuedActions.Add(RemoveAction);
 	}
+	else
+	{
+		RemoveAction(this);
+	}   
 }
 
 void UArcActivityWorldSubsystem::NotifyAddedActivityFromReplication(UArcActivityInstance* Instance)
