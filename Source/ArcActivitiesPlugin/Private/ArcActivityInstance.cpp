@@ -17,6 +17,8 @@
 #include "Engine/NetDriver.h"
 #include "Engine/NetConnection.h"
 
+#include "TimerManager.h"
+
 void UArcActivityInstance::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
 {
 	if (IsValid(ActivityGraph))
@@ -283,8 +285,18 @@ bool UArcActivityInstance::TryProgressStage()
 		return false;
 	}
 
-
-	ProgressStage_Internal(StageState == EArcActivityObjectiveTrackerState::CompletedSuccess ? EArcActivitySuccessState::Success : EArcActivitySuccessState::Failure);
+	EArcActivitySuccessState Transition = StageState == EArcActivityObjectiveTrackerState::CompletedSuccess ? EArcActivitySuccessState::Success : EArcActivitySuccessState::Failure;
+	float TotalTime = GetDelayTimeForStageTransition();
+	if (TotalTime > 0)
+	{
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindUObject(this, &ThisClass::ProgressStage_Internal, Transition);
+		GetWorld()->GetTimerManager().SetTimer(StageDelayTimer, TimerDelegate, TotalTime, false);
+	}
+	else
+	{
+		ProgressStage_Internal(Transition);
+	}
 	return true;	
 }
 
@@ -559,4 +571,20 @@ void UArcActivityInstance::TrackerUpdated_Internal(UArcActivityTask_ObjectiveTra
 	{
 		TryProgressStage();
 	}
+}
+
+float UArcActivityInstance::GetDelayTimeForStageTransition() const
+{
+	float DelayTime = 0.0f;
+
+	if (IsValid(ActivityGraph))
+	{
+		DelayTime += ActivityGraph->BaseStageProgressionTimer;
+	}
+	if (IsValid(CurrentStage))
+	{
+		DelayTime += CurrentStage->StageCompletionDelay;
+	}
+
+	return DelayTime;
 }

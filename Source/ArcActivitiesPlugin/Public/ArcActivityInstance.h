@@ -137,6 +137,8 @@ private:
 
 	void TrackerUpdated_Internal(UArcActivityTask_ObjectiveTracker* Tracker);
 
+	float GetDelayTimeForStageTransition() const;
+
 	FArcActivityDelegateEnded OnActivityEnded;
 
 	TWeakObjectPtr<UWorld> World;
@@ -173,5 +175,5 @@ private:
 	UPROPERTY()
 	TArray<UArcActivityTask_ObjectiveTracker*> CurrentObjectiveTrackers;
 
-	
+	FTimerHandle StageDelayTimer;
 };

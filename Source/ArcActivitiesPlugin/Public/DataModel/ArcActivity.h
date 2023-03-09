@@ -40,6 +40,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Activity")
 	FGameplayTagContainer Tags;
 
+	//How long in seconds before moving to the next stage.  
+	//If number is 0 or less, will instantly move stages
+	UPROPERTY(EditAnywhere, Category = "Activity")
+	float BaseStageProgressionTimer;
+
 #if WITH_EDITORONLY_DATA
 	//Graph Representation
 	UPROPERTY()

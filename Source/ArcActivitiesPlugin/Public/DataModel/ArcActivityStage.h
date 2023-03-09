@@ -30,8 +30,11 @@ public:
 	FText StageDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Activity")
-		EArcActivityCompletionMode CompletionMode;
+	EArcActivityCompletionMode CompletionMode;
 
+	//How long to delay this stage's completion.
+	UPROPERTY(EditAnywhere, Category="Activity")
+	float StageCompletionDelay;
 
 	UPROPERTY(VisibleAnywhere, Category="Activity")
 	UArcActivityStage* NextStage_Success;

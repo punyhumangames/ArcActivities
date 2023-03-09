@@ -7,5 +7,5 @@
 UArcActivity::UArcActivity(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
+	BaseStageProgressionTimer = 0;
 }
