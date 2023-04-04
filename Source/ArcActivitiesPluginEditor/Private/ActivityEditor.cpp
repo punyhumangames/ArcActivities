@@ -32,12 +32,10 @@
 struct FActivityEditorTabs
 {
 	static const FName Details;
-	static const FName Actions;
 	static const FName GraphEditor;
 };
 
 const FName FActivityEditorTabs::Details = TEXT("Details");
-const FName FActivityEditorTabs::Actions = TEXT("Actions");
 const FName FActivityEditorTabs::GraphEditor = TEXT("GraphEditor");
 
 
@@ -76,18 +74,11 @@ void FActivityEditor::InitActivityEditor(const EToolkitMode::Type Mode, const TS
 	UpdateGraphEdPtr = GraphEditor;
 
 	//Default Layout
-	const TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout = FTabManager::NewLayout("ActivityEditor_v1")
+	const TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout = FTabManager::NewLayout("ActivityEditor_v2")
 		->AddArea
 		(
 			FTabManager::NewPrimaryArea()
 			->SetOrientation(Orient_Vertical)
-			->Split
-			(
-				FTabManager::NewStack()
-				->SetSizeCoefficient(0.1f)
-				->SetHideTabWell(true)
-				->AddTab(GetToolbarTabId(), ETabState::OpenedTab)
-			)
 			->Split
 			(
 				FTabManager::NewSplitter()
@@ -117,12 +108,6 @@ void FActivityEditor::InitActivityEditor(const EToolkitMode::Type Mode, const TS
 							->AddTab(FActivityEditorTabs::Details, ETabState::OpenedTab)
 						)
 						// ...
-					)
-					->Split
-					(
-						FTabManager::NewStack()
-						->SetSizeCoefficient(0.6f)
-						->AddTab(FActivityEditorTabs::Actions, ETabState::OpenedTab)
 					)
 				)
 			)
@@ -194,9 +179,6 @@ void FActivityEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& I
 		.SetDisplayName(LOCTEXT("DetailsTab_Label", "Details"))
 		.SetGroup(WorkspaceMenuCategoryRef);
 
-	InTabManager->RegisterTabSpawner(FActivityEditorTabs::Actions, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_Actions))
-		.SetDisplayName(LOCTEXT("ActionsTab_Label", "Actions"))
-		.SetGroup(WorkspaceMenuCategoryRef);
 
 	InTabManager->RegisterTabSpawner(FActivityEditorTabs::GraphEditor, FOnSpawnTab::CreateSP(this, &FActivityEditor::SpawnTab_GraphEditor))
 		.SetDisplayName(LOCTEXT("GraphEditorTab_Label", "Graph Editor"))
@@ -208,7 +190,6 @@ void FActivityEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>&
 	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
 
 	InTabManager->UnregisterTabSpawner(FActivityEditorTabs::Details);
-	InTabManager->UnregisterTabSpawner(FActivityEditorTabs::Actions);
 	InTabManager->UnregisterTabSpawner(FActivityEditorTabs::GraphEditor);
 }
 
@@ -239,24 +220,6 @@ TSharedRef<SDockTab> FActivityEditor::SpawnTab_Details(const FSpawnTabArgs& Args
 		];
 }
 
-TSharedRef<SDockTab> FActivityEditor::SpawnTab_Actions(const FSpawnTabArgs& Args)
-{
-	
-	//ActionPalette = SNew(SCCGraphPalette, SharedThis(this));
-
-	TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
-		.Icon(FEditorStyle::GetBrush("Kismet.Tabs.Palette"))
-		.Label(LOCTEXT("ActionsPaletteTitle", "Activity Nodes"))
-		[
-			SNew(SBox)
-		/*[
-			ActionPalette.ToSharedRef()
-		] */
-		];
-
-	return SpawnedTab;
-	
-}
 
 FName FActivityEditor::GetToolkitFName() const
 {

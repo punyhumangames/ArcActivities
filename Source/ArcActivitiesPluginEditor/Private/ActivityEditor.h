@@ -50,7 +50,6 @@ public:
 protected:
 	TSharedRef<SDockTab> SpawnTab_GraphEditor(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Details(const FSpawnTabArgs& Args);
-	TSharedRef<SDockTab> SpawnTab_Actions(const FSpawnTabArgs& Args);
 
 	TSharedPtr<class SGraphPalette> ActionPalette;
 
