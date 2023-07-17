@@ -1,0 +1,25 @@
+{
+    "$schema": "https://src.redpoint.games/redpointgames/uet/-/raw/main/schema.json",
+    "Type": "Plugin",
+    "PluginName": "ArcActivities",
+    "Copyright": {
+        "Header": "Copyright 2017-%Y Puny Human, All Rights Reserved."
+    },
+    "Distributions": [
+        {
+            "Name": "Marketplace",
+            "Build": {
+                "Editor": {
+                    "Platforms": [
+                        "Win64",
+                        "Linux"
+                    ]
+                }
+            },
+            "Package": {
+                "Marketplace": true,
+                "Filter": "ArcActivities/Config/FilterPlugin.ini"
+            }
+        }
+    ]
+}

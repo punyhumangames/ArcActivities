@@ -1,0 +1,33 @@
+{
+	"FileVersion" : 3,
+	"Version" : 1,
+	"VersionName" : "1.0-git",
+	"FriendlyName" : "Activities",
+	"Description" : "Activities",
+	"Category" : "Gameplay",
+	"CreatedBy" : "Puny Human and Garrett Fleenor",
+	"CreatedByURL" : "http://www.punyhuman.com",
+	"DocsURL" : "",
+	"MarketplaceURL" : "",
+	"SupportURL" : "",
+	"CanContainContent" : true,
+	"Installed" : true,
+	"Modules" :
+	[
+		{
+			"Name": "ArcActivitiesPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
+		},
+		{
+			"Name": "ArcActivitiesPluginEditor",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "PreDefault"
+		}
+	]
+}
