@@ -1,11 +1,11 @@
 {
 	"FileVersion" : 3,
 	"Version" : 1,
-	"VersionName" : "1.0",
+	"VersionName" : "1.0-git",
 	"FriendlyName" : "Activities",
 	"Description" : "Activities",
 	"Category" : "Gameplay",
-	"CreatedBy" : "Puny Human",
+	"CreatedBy" : "Puny Human and Garrett Fleenor",
 	"CreatedByURL" : "http://www.punyhuman.com",
 	"DocsURL" : "",
 	"MarketplaceURL" : "",
