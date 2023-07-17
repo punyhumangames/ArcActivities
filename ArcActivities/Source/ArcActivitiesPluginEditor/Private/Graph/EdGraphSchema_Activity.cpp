@@ -117,14 +117,16 @@ FLinearColor UEdGraphSchema_Activity::GetPinTypeColor(const FEdGraphPinType& Pin
 {
 	if (PinType.PinCategory == FActivityNodePinTypes::Output_Success)
 	{
-		return FColor::Green;
+		return FColor(0x00, 0x7E, 0x33, 0xFF);
 	}
-
-	if (PinType.PinCategory == FActivityNodePinTypes::Output_Fail)
+	else if (PinType.PinCategory == FActivityNodePinTypes::Output_Fail)
 	{
-		return FColor::Orange;
+		return FColor(0xFF, 0x88, 0x00, 0xFF);
 	}
-
+	else if (PinType.PinCategory == FActivityNodePinTypes::Input)
+	{
+		return FColor(0x00, 0x99, 0xCC, 0xFF);
+	}
 
 	return FColor::Purple;
 }

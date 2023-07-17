@@ -94,15 +94,7 @@ protected:
 	/** @return The color that we should use to draw this pin */
 	virtual FSlateColor GetPinColor() const override
 	{
-		if (GraphPinObj->PinType.PinCategory == FActivityNodePinTypes::Output_Success)
-		{
-			return FColor::Green;
-		}	 
-		if (GraphPinObj->PinType.PinCategory == FActivityNodePinTypes::Output_Fail)
-		{
-			return FColor::Orange;
-		}
-		return FColor::Purple;
+		return GraphPinObj->GetSchema()->GetPinTypeColor(GraphPinObj->PinType);
 	}
 };
 
