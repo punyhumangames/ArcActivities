@@ -67,7 +67,14 @@ FText UActivityNode_Stage::GetNodeTitle(ENodeTitleType::Type TitleType) const
 	switch (TitleType)
 	{
 	case ENodeTitleType::FullTitle:
-		return IsValid(GetActivityStage()) ? GetActivityStage()->StageName : LOCTEXT("NullKey", "ERROR: NULL NODE");
+	{
+		FText Title = IsValid(GetActivityStage()) ? GetActivityStage()->StageName : LOCTEXT("NullKey", "ERROR: NULL NODE");
+		if (Title.IsEmptyOrWhitespace())
+		{
+			return LOCTEXT("EmptyTitle", "New Stage");
+		}
+		return Title;
+	}
 	default:
 		return Super::GetNodeTitle(TitleType);
 	}
@@ -75,7 +82,12 @@ FText UActivityNode_Stage::GetNodeTitle(ENodeTitleType::Type TitleType) const
 
 FText UActivityNode_Stage::GetDescription() const
 {
-	return IsValid(GetActivityStage()) ? GetActivityStage()->StageDescription : LOCTEXT("Null Description", "ERROR: NULL NODE");
+	FText Desc = IsValid(GetActivityStage()) ? GetActivityStage()->StageDescription : LOCTEXT("Null Description", "ERROR: NULL NODE");
+	if (Desc.IsEmptyOrWhitespace())
+	{
+		return LOCTEXT("EmptyDescription", "Add A Description in the Property Editor");
+	}
+	return Desc;
 }
 
 void UActivityNode_Stage::PinConnectionListChanged(UEdGraphPin* Pin)
