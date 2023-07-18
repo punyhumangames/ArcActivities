@@ -472,8 +472,49 @@ TArray<FOverlayWidgetInfo> SGraphNode_Activity::GetOverlayWidgets(bool bSelected
 
 TSharedRef<SGraphNode> SGraphNode_Activity::GetNodeUnderMouse(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	TSharedPtr<SGraphNode> SubNode = GetSubNodeUnderCursor(MyGeometry, MouseEvent);
+	TSharedPtr<SGraphNode> SubNode = ArcGetSubNodeUnderCursor(MyGeometry, MouseEvent);
 	return SubNode.IsValid() ? SubNode.ToSharedRef() : StaticCastSharedRef<SGraphNode>(AsShared());
+}
+
+
+
+TSharedPtr<SGraphNode> SGraphNode_Activity::ArcGetSubNodeUnderCursor(const FGeometry& WidgetGeometry, const FPointerEvent& MouseEvent)
+{
+	TSharedPtr<SGraphNode> ResultNode;
+
+	// We just need to find the one WidgetToFind among our descendants.
+	TSet< TSharedRef<SWidget> > SubWidgetsSet;
+	AddSubnodesToSetRecursively(SubWidgetsSet);
+
+	TMap<TSharedRef<SWidget>, FArrangedWidget> Result;
+	FindChildGeometries(WidgetGeometry, SubWidgetsSet, Result);
+
+	if (Result.Num() > 0)
+	{
+		FArrangedChildren ArrangedChildren(EVisibility::Visible);
+		Result.GenerateValueArray(ArrangedChildren.GetInternalArray());
+
+		const int32 HoveredIndex = SWidget::FindChildUnderMouse(ArrangedChildren, MouseEvent);
+		if (HoveredIndex != INDEX_NONE)
+		{
+			ResultNode = StaticCastSharedRef<SGraphNode>(ArrangedChildren[HoveredIndex].Widget);
+		}
+	}
+
+	return ResultNode;
+}
+
+void SGraphNode_Activity::AddSubnodesToSetRecursively(TSet<TSharedRef<SWidget>>& Set)
+{
+	for (int32 i = 0; i < SubNodes.Num(); i++)
+	{
+		TSharedPtr<SWidget> SubNodeWidget = SubNodes[i];
+		Set.Add(SubNodes[i].ToSharedRef());
+		if (TSharedPtr<SGraphNode_Activity> ActivityWidget = StaticCastSharedPtr< SGraphNode_Activity>(SubNodeWidget))
+		{
+			ActivityWidget->AddSubnodesToSetRecursively(Set);
+		}
+	}
 }
 
 void SGraphNode_Activity::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty)
