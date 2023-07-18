@@ -11,15 +11,15 @@ UActivityNode_ObjectiveTracker::UActivityNode_ObjectiveTracker(const FObjectInit
 
 FText UActivityNode_ObjectiveTracker::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
-	FString StoredClassName = ClassData.GetClassName();
-	StoredClassName.RemoveFromEnd(TEXT("_C"));
-
-	return FText::Format(NSLOCTEXT("ActivityClass", "ObjectiveTrackerString", "Tracker {0}"), FText::FromString(StoredClassName));
+	return NSLOCTEXT("ActivityClass", "ObjectiveTrackerTitle", "Tracker");
 }
 
 FText UActivityNode_ObjectiveTracker::GetDescription() const
 {
-	return FText();
+	FString StoredClassName = ArcClassData.GetClassName();
+	StoredClassName.RemoveFromEnd(TEXT("_C"));
+
+	return FText::Format(NSLOCTEXT("ActivityClass", "ObjectiveTrackerString", "{0}"), FText::FromString(StoredClassName));
 }
 
 void UActivityNode_ObjectiveTracker::AllocateDefaultPins()
