@@ -2,6 +2,7 @@
 
 
 #include "ArcActivityInstance.h"
+#include "Engine/World.h"
 #include "DataModel/ArcActivity.h"
 #include "DataModel/ArcActivityTask_StageService.h"
 #include "DataModel/ArcActivityTask_ObjectiveTracker.h"

@@ -15,6 +15,7 @@ public:
 	UActivityNode_ObjectiveTracker(const FObjectInitializer& ObjectInitializer);
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
+	virtual FText GetDescription() const;
 	virtual void AllocateDefaultPins() override;
 
 	UArcActivityTask_ObjectiveTracker* GetObjectiveTracker();

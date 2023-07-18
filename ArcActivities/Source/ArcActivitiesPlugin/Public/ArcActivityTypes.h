@@ -6,6 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "NativeGameplayTags.h"
 #include "Engine/NetSerialization.h"
+#include "Net/Serialization/FastArraySerializer.h"
 #include "ArcActivityTypes.generated.h"
 
 

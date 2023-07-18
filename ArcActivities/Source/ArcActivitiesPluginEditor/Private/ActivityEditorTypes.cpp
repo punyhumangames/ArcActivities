@@ -5,6 +5,7 @@
 
 #include "UObject/Object.h"
 #include "UObject/Class.h"
+#include "UObject/UObjectIterator.h"
 #include "Editor.h"
 #include "Engine/Blueprint.h"
 #include "ObjectEditorUtils.h"

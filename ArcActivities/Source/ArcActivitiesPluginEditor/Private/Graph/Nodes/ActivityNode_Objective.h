@@ -17,6 +17,7 @@ public:
 	virtual void AllocateDefaultPins() override;
 	virtual void GetNodeContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
+	virtual FText GetDescription() const;
 
 	UArcActivityObjective* GetObjective() const;
 

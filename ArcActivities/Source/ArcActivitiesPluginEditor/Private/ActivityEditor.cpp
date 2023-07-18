@@ -207,7 +207,11 @@ TSharedRef<SDockTab> FActivityEditor::SpawnTab_Details(const FSpawnTabArgs& Args
 {
 	//FMissionObjectivesEditorEdMode* EdMode = FAssetEditorToolkit::GetEditorMode();
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	const FDetailsViewArgs DetailsViewArgs(false, false, true, FDetailsViewArgs::HideNameArea, true, this);
+	FDetailsViewArgs DetailsViewArgs;
+	DetailsViewArgs.bAllowSearch = true;
+	DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;
+	DetailsViewArgs.bHideSelectionTip = true;
+	DetailsViewArgs.NotifyHook = this; 
 	TSharedPtr<IDetailsView> PropertyEditorRef = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 
 	PropertyEditor = PropertyEditorRef;

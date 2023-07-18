@@ -17,6 +17,11 @@ FText UActivityNode_ObjectiveTracker::GetNodeTitle(ENodeTitleType::Type TitleTyp
 	return FText::Format(NSLOCTEXT("ActivityClass", "ObjectiveTrackerString", "Tracker {0}"), FText::FromString(StoredClassName));
 }
 
+FText UActivityNode_ObjectiveTracker::GetDescription() const
+{
+	return FText();
+}
+
 void UActivityNode_ObjectiveTracker::AllocateDefaultPins()
 {
 	//No Pins

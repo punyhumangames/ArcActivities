@@ -40,10 +40,23 @@ FText UActivityNode_Objective::GetNodeTitle(ENodeTitleType::Type TitleType) cons
 	switch (TitleType)
 	{
 	case ENodeTitleType::FullTitle:
-		return IsValid(GetObjective()) ? GetObjective()->ObjectiveName : LOCTEXT("NullObjectiveName", "ERROR: NULL OBJECTIVE");
+	{
+		FText Title = IsValid(GetObjective()) ? GetObjective()->ObjectiveName : LOCTEXT("NullObjectiveName", "ERROR: NULL OBJECTIVE");
+	
+		if (Title.IsEmptyOrWhitespace())
+		{
+			return LOCTEXT("EmptyObjectiveName", "New Objective");
+		}
+		return Title;
+	}
 	default:
 		return Super::GetNodeTitle(TitleType);
 	}
+}
+
+FText UActivityNode_Objective::GetDescription() const
+{
+	return LOCTEXT("ObjectiveNodeDescription", "An Objective");
 }
 
 UArcActivityObjective* UActivityNode_Objective::GetObjective() const
