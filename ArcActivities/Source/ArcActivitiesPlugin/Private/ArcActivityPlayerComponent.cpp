@@ -8,6 +8,8 @@
 UArcActivityPlayerComponent::UArcActivityPlayerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	SetIsReplicatedByDefault(true);
 }
 
 void UArcActivityPlayerComponent::JoinActivity(UArcActivityInstance* ActivityInstance)
