@@ -1,4 +1,5 @@
-// Copyright 2023 Puny Human.  All Rights Reserved
+// Arc Activities Plugin.  Copyright Puny Human and Garrett Fleenor.  Licensed under MIT or Apache 2.0 license.  See LICENSE-MIT and LICENSE-APACHE for more info
+
 
 #include "Events/K2Node_ArcAsyncAction_ListenForEvent.h"
 #include "Events/ArcAsyncAction_ListenForEvent.h"
