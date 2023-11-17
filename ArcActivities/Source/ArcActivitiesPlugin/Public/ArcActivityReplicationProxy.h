@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include "ArcActivityReplicationProxy.generated.h"
 #include "CoreMinimal.h"
 #include "Engine/NetSerialization.h"
 #include "GameFramework/Actor.h"
+#include "ArcActivityReplicationProxy.generated.h"
 
 class UArcActivityInstance;
 class UArcActivity;
