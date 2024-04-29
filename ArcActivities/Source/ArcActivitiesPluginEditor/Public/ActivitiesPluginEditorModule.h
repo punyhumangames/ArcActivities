@@ -12,6 +12,7 @@
 #include "AssetTypeActions_Base.h"
 
 struct FArcGraphNodeClassHelper;
+class FActivityEditor;
 
 class FActivitiesPluginEditorModule : public IModuleInterface,
 	public IHasMenuExtensibility, public IHasToolBarExtensibility

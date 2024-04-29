@@ -2,6 +2,7 @@
 
 
 #include "Factory_Activity.h"
+#include "DataModel/ArcActivity.h"
 
 
 UFactory_Activity::UFactory_Activity(const FObjectInitializer& ObjectInitializer)
