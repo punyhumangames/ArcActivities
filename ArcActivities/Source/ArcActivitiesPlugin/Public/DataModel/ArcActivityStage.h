@@ -6,7 +6,7 @@
 #include "ArcActivityTypes.h"
 #include "ArcActivityStage.generated.h"
 
-
+class UArcActivity;
 class UArcActivityObjective;
 class UArcActivityTask_StageService;
 class UArcActivityUIObject;

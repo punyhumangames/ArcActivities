@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "Engine/NetSerialization.h"
 #include "GameFramework/Actor.h"
+#include "Net/Serialization/FastArraySerializer.h"
 #include "ArcActivityReplicationProxy.generated.h"
 
 class UArcActivityInstance;

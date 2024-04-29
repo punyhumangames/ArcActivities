@@ -23,7 +23,7 @@ public:
 
 	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual bool IsNameStableForNetworking() const override { return false; }
-	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) {
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, struct FReplicationFlags* RepFlags) {
 		return false;
 	}
 
