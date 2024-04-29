@@ -4,7 +4,7 @@
 #pragma once
 
 
-#include "BlueprintGraph/Classes/K2Node_AsyncAction.h"
+#include "K2Node_AsyncAction.h"
 #include "Containers/Array.h"
 #include "K2Node_BaseAsyncTask.h"
 #include "UObject/UObjectGlobals.h"

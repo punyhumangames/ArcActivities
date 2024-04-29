@@ -9,6 +9,7 @@
 #include "ArcActivityTypes.h"
 #include "ArcActivityWorldSubsystem.h"
 #include "GameplayTagAssetInterface.h"
+#include "Engine/World.h"
 #include "ArcActivityInstance.generated.h"
 
 class UArcActivity;
@@ -44,12 +45,12 @@ public:
 	bool IsActive() const;
 	void EndActivity(bool bWasCancelled = false);
 
-	UFUNCTION(BlueprintCallable, Category="Activity")
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	TArray<UArcActivityTask_ObjectiveTracker*> GetCurrentObjectiveTrackers();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	void AddPlayerToActivity(UArcActivityPlayerComponent* Player);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	void RemovePlayerFromActivity(UArcActivityPlayerComponent* Player);
 	bool TryProgressStage();
 
@@ -79,13 +80,13 @@ public:
 	using ForEachObjectiveTrackerFunc = TFunctionRef<void(UArcActivityTask_ObjectiveTracker*)>;
 	void ForEachObjectiveTracker_Mutable(ForEachObjectiveTrackerFunc Func) const;
 
-	UFUNCTION(BlueprintPure, Category="Activity")
+	UFUNCTION(BlueprintPure, Category = "Arc|Activity")
 	EArcActivitySuccessState GetActivityState() const { return ActivityState; }
 
 	UFUNCTION()
 	virtual void OnRep_CurrentStage(UArcActivityStage* PreviousStage);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	TArray<UArcActivityPlayerComponent*> GetPlayersInActivity() const;
 
 	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
@@ -116,16 +117,7 @@ protected:
 	void OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const;
 
 	template<typename T>
-	void RaiseEvent(FGameplayTag Tag, const T& EventStruct) const
-	{
-		if (IsValid(GetWorld()))
-		{
-			if (UArcActivityWorldSubsystem* Subsys = GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
-			{
-				Subsys->BroadcastMessage(Tag, EventStruct);
-			}
-		}		
-	}
+	void RaiseEvent(FGameplayTag Tag, const T& EventStruct) const;
 
 private:
 	//BEGIN ACCESSED BY ARC ACTIVITY GI SUBSYSTEM
@@ -178,3 +170,15 @@ private:
 
 	FTimerHandle StageDelayTimer;
 };
+
+template<typename T>
+inline void UArcActivityInstance::RaiseEvent(FGameplayTag Tag, const T& EventStruct) const
+{
+	if (IsValid(GetWorld()))
+	{
+		if (UArcActivityWorldSubsystem* Subsys = GetWorld()->GetSubsystem<UArcActivityWorldSubsystem>())
+		{
+			Subsys->BroadcastMessage(Tag, EventStruct);
+		}
+	}
+}

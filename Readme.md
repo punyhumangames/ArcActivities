@@ -1,6 +1,6 @@
 # Arc Activities Example Project
 
-This is the Arc Activities plugin for Unreal Engine 5.0+
+This is the Arc Activities plugin for Unreal Engine 5.2+
 
 Arc Activities is a plugin that provides a series of assets to help you build quests and world activities for your unreal engine games.
 
@@ -19,7 +19,7 @@ For examples, please view the Arc Activities Example Project: https://github.com
 
 ## Keeping up to date
 
-Arc Activities will be updated with Unreal Engine versions as they come out.  Officially we support the three most recent UE versions.  They are current UE 5.1, 5.2, and 5.3.  You can use older versions at your own risk.  
+Arc Activities will be updated with Unreal Engine versions as they come out.  Officially we support the three most recent UE versions.  They are current UE 5.2, 5.3, and 5.4.  You can use older versions at your own risk.  
 
 ## License
 This project is open source and permissively licensed, under either MIT or Apache 2.0.  You may chose either license.  

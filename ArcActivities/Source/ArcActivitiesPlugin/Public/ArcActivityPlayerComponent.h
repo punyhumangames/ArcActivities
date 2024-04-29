@@ -19,9 +19,9 @@ public:
 
 	UArcActivityPlayerComponent();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	void JoinActivity(UArcActivityInstance* ActivityInstance);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	void LeaveActivity(UArcActivityInstance* ActivityInstance);
 private: 
 

@@ -5,7 +5,6 @@
 #include "EdGraph/EdGraph.h"
 #include "Graph/EdGraph_Activity.h"
 #include "Engine/Blueprint.h"
-#include "BlueprintNodeHelpers.h"
 
 #include "EdGraph/EdGraph.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"

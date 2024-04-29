@@ -108,16 +108,16 @@ public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual void Deinitialize() override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	UArcActivityPlayerComponent* RegisterPlayerForActivities(APlayerState* PlayerState);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	UArcActivityInstance* StartActivity(UArcActivity* Activity, FGameplayTagContainer Tags);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 		bool IsActivityActive(UArcActivityInstance* Activity) const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 		void CancelActivity(UArcActivityInstance* Activity);
 
 	using ForEachActivityPredicate = void(const UArcActivityInstance*);
