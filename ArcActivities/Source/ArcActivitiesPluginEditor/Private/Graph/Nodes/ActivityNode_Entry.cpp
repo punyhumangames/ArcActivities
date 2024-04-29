@@ -4,11 +4,13 @@
 #include "ActivityNode_Entry.h"
 #include "Graph/EdGraph_Activity.h"
 #include "EdGraph/EdGraph.h"
+#include "EdGraph/EdGraphPin.h"
 
 #include "ActivityNode_Service.h"
 
 #include "DataModel/ArcActivity.h"
 #include "DataModel/ArcActivityStage.h"
+#include "Graph/Nodes/ActivityNode_Stage.h"
 
 #define LOCTEXT_NAMESPACE "ActivityNode"
 
