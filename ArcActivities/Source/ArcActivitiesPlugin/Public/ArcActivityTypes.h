@@ -110,10 +110,10 @@ struct FArcActivityActivityStateChanged
 	UArcActivityInstance* ActivityInstance = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		EArcActivitySuccessState ActivityState;
+		EArcActivitySuccessState ActivityState = EArcActivitySuccessState::None;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-	EArcActivitySuccessState PreviousActivityState;
+	EArcActivitySuccessState PreviousActivityState = EArcActivitySuccessState::None;
 
 	FArcActivityActivityStateChanged() { }
 
@@ -147,7 +147,7 @@ struct FArcActivityStageChangedEventPayload
 
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		EArcActivitySuccessState PreviousStageState;
+		EArcActivitySuccessState PreviousStageState = EArcActivitySuccessState::None;
 
 	FArcActivityStageChangedEventPayload() { } 
 
@@ -186,9 +186,9 @@ struct FArcActivityTagStackChanged
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 		FGameplayTag Tag;
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		int32 CurrentValue;
+		int32 CurrentValue = 0;
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		int32 PreviousValue;
+		int32 PreviousValue = 0;
 };
 
 UENUM(BlueprintType)
@@ -210,7 +210,7 @@ struct FArcActivityPlayerEventPayload
 	UArcActivityPlayerComponent* Player = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		EArcActivityPlayerEventType EventType;
+		EArcActivityPlayerEventType EventType = EArcActivityPlayerEventType::PlayerJoined;
 
 	FArcActivityPlayerEventPayload() { }
 
