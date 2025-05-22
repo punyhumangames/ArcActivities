@@ -31,10 +31,12 @@ void UArcActivityInstance::GetOwnedGameplayTags(FGameplayTagContainer& TagContai
 
 UArcActivityInstance::UArcActivityInstance()
 	: Super()
+	, ActivityState(EArcActivitySuccessState::None)
 	, PreviousStageCompletion(EArcActivitySuccessState::None)
 	, PlayersInActivty(this)
 {
-	TagStacks.OnTagCountChanged.AddUObject(this, &ThisClass::OnTagCountChanged);
+	//TODO: Adjust this for tagged variants
+	//TagStacks.OnTagCountChanged.AddUObject(this, &ThisClass::OnTagCountChanged);
 }
 
 UWorld* UArcActivityInstance::GetWorld() const
@@ -67,7 +69,7 @@ void UArcActivityInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	DOREPLIFETIME(UArcActivityInstance, PlayersInActivty);
 	DOREPLIFETIME(UArcActivityInstance, ActivityState);
 	DOREPLIFETIME(UArcActivityInstance, PreviousStageCompletion);
-	DOREPLIFETIME(UArcActivityInstance, TagStacks);
+	DOREPLIFETIME(UArcActivityInstance, TaggedData);
 }
 
 bool UArcActivityInstance::IsActive() const
@@ -388,36 +390,6 @@ TArray<UArcActivityPlayerComponent*> UArcActivityInstance::GetPlayersInActivity(
 		Components.AddUnique(Player.Player);
 	}
 	return Components;
-}
-
-void UArcActivityInstance::AddStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	TagStacks.AddStack(Tag, StackCount);
-}
-
-void UArcActivityInstance::RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	TagStacks.RemoveStack(Tag, StackCount);
-}
-
-void UArcActivityInstance::SetStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	TagStacks.SetStack(Tag, StackCount);
-}
-
-int32 UArcActivityInstance::GetStatTagStackCount(FGameplayTag Tag) const
-{
-	return TagStacks.GetStackCount(Tag);
-}
-
-bool UArcActivityInstance::HasStatTag(FGameplayTag Tag) const
-{
-	return TagStacks.ContainsTag(Tag);
-}
-
-void UArcActivityInstance::ClearStatTag(FGameplayTag Tag)
-{
-	TagStacks.ClearStack(Tag);
 }
 
 void UArcActivityInstance::OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const
