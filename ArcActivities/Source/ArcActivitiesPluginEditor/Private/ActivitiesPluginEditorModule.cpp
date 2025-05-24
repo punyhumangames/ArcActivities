@@ -28,7 +28,7 @@
 
 
 
-IMPLEMENT_MODULE(FActivitiesPluginEditorModule, ActivitiesPluginEditor)
+IMPLEMENT_MODULE(FActivitiesPluginEditorModule, ArcActivitiesPluginEditor)
 
 class FGraphPanelNodeFactory_ActivityNodes : public FGraphPanelNodeFactory
 {

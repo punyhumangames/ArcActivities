@@ -280,15 +280,15 @@ public:
 			return Data.Tag == Tag;
 		}))
 		{
-			Data->Value.template Emplace<T>(Value);
+			Data->Value = FTaggedDataVariant(TInPlaceType<T>{}, Value);
 			MarkItemDirty(*Data);
-			TagToDataMap[Tag].Emplace<T>(Value);
+			TagToDataMap.FindOrAdd(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value));
 		}
 		else
 		{
-			FArcActivityTaggedData&  EmplacedData = TaggedData.Emplace_GetRef(Tag, Value);
+			FArcActivityTaggedData&  EmplacedData = TaggedData.Add_GetRef(FArcActivityTaggedData(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value)));
 			MarkItemDirty(EmplacedData);
-			TagToDataMap[Tag].Emplace<T>(Value);
+			TagToDataMap.Add(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value));
 		}
 	}
 
@@ -323,9 +323,19 @@ public:
 		return {};
 	}
 
-	bool HasTaggedData(FGameplayTag Tag) const
+	bool HasAnyTaggedData(FGameplayTag Tag) const
 	{
 		return TagToDataMap.Contains(Tag);
+	}
+
+	template<typename T>
+	bool HasTaggedData(FGameplayTag Tag) const 
+	{
+		if (auto* Data = TagToDataMap.Find(Tag))
+		{
+			return Data->IsType<T>();
+		}
+		return false;
 	}
 	
 	void RebuildTagToCountMap();

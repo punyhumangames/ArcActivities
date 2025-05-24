@@ -107,9 +107,15 @@ public:
 		return TaggedData.GetTaggedData<T>(Tag);
 	}
 
+	bool HasAnyTaggedData(FGameplayTag Tag) const
+	{
+		return TaggedData.HasAnyTaggedData(Tag);
+	}
+
+	template<typename T>
 	bool HasTaggedData(FGameplayTag Tag) const
 	{
-		return TaggedData.HasTaggedData(Tag);
+		return TaggedData.HasTaggedData<T>(Tag);
 	}
 
 
