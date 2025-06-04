@@ -49,7 +49,7 @@ public:
 	virtual TSharedRef<SGraphNode> GetNodeUnderMouse(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
 	TSharedPtr<SGraphNode> ArcGetSubNodeUnderCursor(const FGeometry& WidgetGeometry, const FPointerEvent& MouseEvent);
 	void AddSubnodesToSetRecursively(TSet< TSharedRef<SWidget> >& Set);
-	virtual void MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty) override;
+	virtual void MoveTo(const FVector2f& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty) override;
 	// End of SGraphNode interface
 
 	/** handle double click */

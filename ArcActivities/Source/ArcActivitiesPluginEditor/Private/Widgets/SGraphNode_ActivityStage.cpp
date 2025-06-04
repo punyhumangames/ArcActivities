@@ -518,7 +518,7 @@ void SGraphNode_Activity::AddSubnodesToSetRecursively(TSet<TSharedRef<SWidget>>&
 	}
 }
 
-void SGraphNode_Activity::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty)
+void SGraphNode_Activity::MoveTo(const FVector2f& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty)
 {
 	SGraphNodeAI::MoveTo(NewPosition, NodeFilter, bMarkDirty);
 
