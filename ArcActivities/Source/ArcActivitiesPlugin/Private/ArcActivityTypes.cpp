@@ -11,6 +11,14 @@ UE_DEFINE_GAMEPLAY_TAG(FArcActivityPlayerChangedEventTag, TEXT("Activity.Event.P
 UE_DEFINE_GAMEPLAY_TAG(FArcActivityTagStackChangedEventTag, TEXT("Activity.Event.TagStackChanged"));
 
 
+bool FArcActivityTaggedData::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+{
+	Tag.NetSerialize(Ar, Map, bOutSuccess);
+	Ar << Value;
+	bOutSuccess = true;
+	return true;
+}
+
 FString FArcActivityTaggedData::GetDebugString() const
 {
 	return TEXT("TODO");

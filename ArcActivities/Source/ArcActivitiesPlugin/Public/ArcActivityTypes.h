@@ -252,15 +252,26 @@ struct FArcActivityTaggedData : public FFastArraySerializerItem
 		
 	}
 
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+
 	FString GetDebugString() const;
 
 private:
 	friend struct FArcActivityTaggedDataContainer;
 
 	UPROPERTY()
-		FGameplayTag Tag;
+	FGameplayTag Tag;
 
 	FTaggedDataVariant Value;
+};
+
+template<>
+struct TStructOpsTypeTraits<FArcActivityTaggedData> : public TStructOpsTypeTraitsBase2<FArcActivityTaggedData>
+{
+	enum
+	{
+		WithNetSerializer = true,
+	};
 };
 
 USTRUCT(BlueprintType)
@@ -281,15 +292,19 @@ public:
 			return Data.Tag == Tag;
 		}))
 		{
+			FTaggedDataVariant OldValue = Data->Value;
 			Data->Value = FTaggedDataVariant(TInPlaceType<T>{}, Value);
 			MarkItemDirty(*Data);
 			TagToDataMap.FindOrAdd(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value));
+			OnTaggedDataChanged.Broadcast(Tag, OldValue, false);
+			
 		}
 		else
 		{
 			FArcActivityTaggedData&  EmplacedData = TaggedData.Add_GetRef(FArcActivityTaggedData(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value)));
 			MarkItemDirty(EmplacedData);
 			TagToDataMap.Add(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value));
+			OnTaggedDataChanged.Broadcast(Tag, FTaggedDataVariant(), false);
 		}
 	}
 
@@ -299,6 +314,8 @@ public:
 		{
 			if (Tag == Itr->Key)
 			{
+				FTaggedDataVariant OldValue = Itr->Value;				
+				OnTaggedDataChanged.Broadcast(Tag, OldValue, true);
 				Itr.RemoveCurrent();
 				TagToDataMap.Remove(Tag);
 				MarkArrayDirty();
