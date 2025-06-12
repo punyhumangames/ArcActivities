@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "ArcActivityTypes.h"
 #include "ArcActivityBPFunctionLibrary.generated.h"
 
 
@@ -67,6 +68,57 @@ public:
 	static bool HasTaggedDataAsFVector(UArcActivityInstance* Activity, FGameplayTag Tag);
 	UFUNCTION(BlueprintCallable, Category = "Activity")
 	static bool HasTaggedDataAsActor(UArcActivityInstance* Activity, FGameplayTag Tag);
+
+	// Returns the tagged data of an activity event as an integer
+	UFUNCTION(BlueprintCallable, Category = "Activity", meta=(ExpandBoolAsExecs="Found"))
+	static int32 GetPreviousTaggedDataAsInt_Event(const FArcActivityTagStackChanged& Event, bool& Found);
+
+	// Returns the tagged data of an activity event as a float
+	UFUNCTION(BlueprintCallable, Category = "Activity", meta=(ExpandBoolAsExecs="Found"))
+	static float GetPreviousTaggedDataAsFloat_Event(const FArcActivityTagStackChanged& Event, bool& Found);
+
+	// Returns the tagged data of an activity event as a double
+	UFUNCTION(BlueprintCallable, Category = "Activity", meta=(ExpandBoolAsExecs="Found"))
+	static double GetPreviousTaggedDataAsDouble_Event(const FArcActivityTagStackChanged& Event, bool& Found);
+
+	// Returns the tagged data of an activity event as a Gameplay Tag
+	UFUNCTION(BlueprintCallable, Category = "Activity", meta=(ExpandBoolAsExecs="Found"))
+	static FGameplayTag GetPreviousTaggedDataAsGameplayTag_Event(const FArcActivityTagStackChanged& Event, bool& Found);
+
+	// Returns the tagged data of an activity event as a Vector
+	UFUNCTION(BlueprintCallable, Category = "Activity", meta=(ExpandBoolAsExecs="Found"))
+	static FVector GetPreviousTaggedDataAsFVector_Event(const FArcActivityTagStackChanged& Event, bool& Found);
+
+	// Returns the tagged data of an activity event as an Actor
+	UFUNCTION(BlueprintCallable, Category = "Activity", meta=(ExpandBoolAsExecs="Found"))
+	static AActor* GetPreviousTaggedDataAsActor_Event(const FArcActivityTagStackChanged& Event, bool& Found);
+
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static void SetIntPreviousTaggedData_Event(UPARAM(ref) FArcActivityTagStackChanged& Event, int32 Value);
+
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static void SetFloatPreviousTaggedData_Event(UPARAM(ref) FArcActivityTagStackChanged& Event, float Value);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static void SetDoublePreviousTaggedData_Event(UPARAM(ref) FArcActivityTagStackChanged& Event, double Value);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static void SetGameplayTagPreviousTaggedData_Event(UPARAM(ref) FArcActivityTagStackChanged& Event, FGameplayTag Value);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static void SetFVectorPreviousTaggedData_Event(UPARAM(ref) FArcActivityTagStackChanged& Event, FVector Value);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static void SetActorPreviousTaggedData_Event(UPARAM(ref) FArcActivityTagStackChanged& Event, AActor* Value);
+
 	
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static bool HasPreviousTaggedDataAsInt_Event(const FArcActivityTagStackChanged& Event);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static bool HasPreviousTaggedDataAsFloat_Event(const FArcActivityTagStackChanged& Event);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static bool HasPreviousTaggedDataAsDouble_Event(const FArcActivityTagStackChanged& Event);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static bool HasPreviousTaggedDataAsGameplayTag_Event(const FArcActivityTagStackChanged& Event);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static bool HasPreviousTaggedDataAsFVector_Event(const FArcActivityTagStackChanged& Event);
+	UFUNCTION(BlueprintCallable, Category = "Activity")
+	static bool HasPreviousTaggedDataAsActor_Event(const FArcActivityTagStackChanged& Event);
 	
 };

@@ -122,7 +122,7 @@ public:
 	
 
 protected:
-	void OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const;
+	void OnTagDataChanged(FGameplayTag Tag, FTaggedDataVariant PreviousValue, bool bRemoved) const;
 
 	template<typename T>
 	void RaiseEvent(FGameplayTag Tag, const T& EventStruct) const;

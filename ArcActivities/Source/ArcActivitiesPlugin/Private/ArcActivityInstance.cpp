@@ -35,8 +35,7 @@ UArcActivityInstance::UArcActivityInstance()
 	, PreviousStageCompletion(EArcActivitySuccessState::None)
 	, PlayersInActivty(this)
 {
-	//TODO: Adjust this for tagged variants
-	//TagStacks.OnTagCountChanged.AddUObject(this, &ThisClass::OnTagCountChanged);
+	TaggedData.OnTaggedDataChanged.AddUObject(this, &ThisClass::OnTagDataChanged);
 }
 
 UWorld* UArcActivityInstance::GetWorld() const
@@ -392,9 +391,9 @@ TArray<UArcActivityPlayerComponent*> UArcActivityInstance::GetPlayersInActivity(
 	return Components;
 }
 
-void UArcActivityInstance::OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const
+void UArcActivityInstance::OnTagDataChanged(FGameplayTag Tag, FTaggedDataVariant PreviousValue, bool bRemoved) const
 {
-	RaiseEvent(FArcActivityTagStackChangedEventTag, FArcActivityTagStackChanged( const_cast<UArcActivityInstance*>(this), Tag, CurrentValue, PreviousValue ));
+	RaiseEvent(FArcActivityTagStackChangedEventTag, FArcActivityTagStackChanged( const_cast<UArcActivityInstance*>(this), Tag, PreviousValue, bRemoved ));
 }
 
 bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGameplayTagContainer& Tags)

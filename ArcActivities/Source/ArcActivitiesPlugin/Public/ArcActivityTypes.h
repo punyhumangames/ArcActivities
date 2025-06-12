@@ -165,6 +165,7 @@ struct FArcActivityStageChangedEventPayload
 	}
 };
 
+using FTaggedDataVariant = TVariant<int32, float, double, TWeakObjectPtr<AActor>, FVector, FGameplayTag>;	
 
 USTRUCT(BlueprintType)
 struct FArcActivityTagStackChanged
@@ -173,23 +174,25 @@ struct FArcActivityTagStackChanged
 
 	FArcActivityTagStackChanged() { }
 
-	FArcActivityTagStackChanged(UArcActivityInstance* InInstance, FGameplayTag InTag, int32 InCurrentValue, int32 InPreviousValue)
+	FArcActivityTagStackChanged(UArcActivityInstance* InInstance, FGameplayTag InTag, FTaggedDataVariant InPreviousValue, bool bInRemoved = false)
 		: Activity(InInstance)
 		, Tag(InTag)
-		, CurrentValue(InCurrentValue)
 		, PreviousValue(InPreviousValue)
+		, bRemoved(bInRemoved)
 	{
 
 	}
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		UArcActivityInstance* Activity;
+		TObjectPtr<UArcActivityInstance> Activity;
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 		FGameplayTag Tag;
+	
+	FTaggedDataVariant PreviousValue;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		int32 CurrentValue = 0;
-	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		int32 PreviousValue = 0;
+	bool bRemoved = false;
+
 };
 
 UENUM(BlueprintType)
@@ -226,7 +229,6 @@ struct FArcActivityPlayerEventPayload
 	}
 };
 
-using FTaggedDataVariant = TVariant<int32, float, double, TWeakObjectPtr<AActor>, FVector, FGameplayTag>;	
 
 USTRUCT(BlueprintType)
 struct FArcActivityTaggedData : public FFastArraySerializerItem
@@ -260,7 +262,6 @@ private:
 
 	FTaggedDataVariant Value;
 };
-
 
 USTRUCT(BlueprintType)
 struct FArcActivityTaggedDataContainer : public FFastArraySerializer
@@ -346,6 +347,8 @@ public:
 	void PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize);
 	//~End of FFastArraySerializer contract
 
+	DECLARE_MULTICAST_DELEGATE_ThreeParams(FArcActivityTaggedDataChangedDelegate, FGameplayTag /* Tag */, FTaggedDataVariant /* OldValue */, bool /* bRemoved */);
+	FArcActivityTaggedDataChangedDelegate OnTaggedDataChanged;
 
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 	{

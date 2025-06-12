@@ -29,7 +29,9 @@ void FArcActivityTaggedDataContainer::PreReplicatedRemove(const TArrayView<int32
 {
 	for (int32 Index : RemovedIndices)
 	{
-
+		const FGameplayTag Tag = TaggedData[Index].Tag;
+		TagToDataMap.Remove(Tag);
+		OnTaggedDataChanged.Broadcast(Tag, TaggedData[Index].Value, true);
 	}
 }
 
@@ -37,7 +39,9 @@ void FArcActivityTaggedDataContainer::PostReplicatedAdd(const TArrayView<int32> 
 {
 	for (int32 Index : AddedIndices)
 	{
-
+		const FArcActivityTaggedData& Data = TaggedData[Index];
+		TagToDataMap.Add(Data.Tag, Data.Value);
+		OnTaggedDataChanged.Broadcast(Data.Tag, FTaggedDataVariant{}, false);
 	}
 }
 
@@ -45,7 +49,10 @@ void FArcActivityTaggedDataContainer::PostReplicatedChange(const TArrayView<int3
 {
 	for (int32 Index : ChangedIndices)
 	{
-		
+		const FArcActivityTaggedData& Data = TaggedData[Index];
+		FTaggedDataVariant OldData = TagToDataMap.FindRef(Data.Tag);
+		TagToDataMap[Data.Tag] = Data.Value;
+		OnTaggedDataChanged.Broadcast(Data.Tag, OldData, false);
 
 	}
 }

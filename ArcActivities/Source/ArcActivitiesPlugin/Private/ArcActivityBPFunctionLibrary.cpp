@@ -11,6 +11,7 @@ int32 UArcActivityBPFunctionLibrary::GetTaggedDataAsInt(UArcActivityInstance* Ac
 	{
 		if (auto Value = Activity->GetTaggedData<int32>(Tag))
 		{
+			Found = true;
 			return *Value;
 		}
 	}
@@ -24,6 +25,7 @@ float UArcActivityBPFunctionLibrary::GetTaggedDataAsFloat(UArcActivityInstance* 
 	{
 		if (auto Value = Activity->GetTaggedData<float>(Tag))
 		{
+			Found = true;
 			return *Value;
 		}
 	}
@@ -38,6 +40,7 @@ double UArcActivityBPFunctionLibrary::GetTaggedDataAsDouble(UArcActivityInstance
 	{
 		if (auto Value = Activity->GetTaggedData<double>(Tag))
 		{
+			Found = true;
 			return *Value;
 		}
 	}
@@ -52,6 +55,7 @@ FGameplayTag UArcActivityBPFunctionLibrary::GetTaggedDataAsGameplayTag(UArcActiv
 	{
 		if (auto Value = Activity->GetTaggedData<FGameplayTag>(Tag))
 		{
+			Found = true;
 			return *Value;
 		}
 	}
@@ -66,6 +70,7 @@ FVector UArcActivityBPFunctionLibrary::GetTaggedDataAsFVector(UArcActivityInstan
 	{
 		if (auto Value = Activity->GetTaggedData<FVector>(Tag))
 		{
+			Found = true;
 			return *Value;
 		}
 	}
@@ -82,6 +87,7 @@ AActor* UArcActivityBPFunctionLibrary::GetTaggedDataAsActor(UArcActivityInstance
 		{
 			if (Value->IsValid())
 			{
+				Found = true;
 				return Value->Get();
 			}
 		}
@@ -169,5 +175,140 @@ bool UArcActivityBPFunctionLibrary::HasTaggedDataAsFVector(UArcActivityInstance*
 bool UArcActivityBPFunctionLibrary::HasTaggedDataAsActor(UArcActivityInstance* Activity, FGameplayTag Tag)
 {
 	return IsValid(Activity) && Activity->HasTaggedData<TWeakObjectPtr<AActor>>(Tag);
+}
+
+int32 UArcActivityBPFunctionLibrary::GetPreviousTaggedDataAsInt_Event(const FArcActivityTagStackChanged& Event,
+	bool& Found)
+{
+	if (auto Value = Event.PreviousValue.TryGet<int32>())
+	{
+		Found = true;
+		return *Value;
+	}
+	Found = false;
+	return {};
+}
+
+float UArcActivityBPFunctionLibrary::GetPreviousTaggedDataAsFloat_Event(const FArcActivityTagStackChanged& Event,
+	bool& Found)
+{
+	if (auto Value = Event.PreviousValue.TryGet<float>())
+	{
+		Found = true;
+		return *Value;
+	}
+	Found = false;
+	return {};
+}
+
+double UArcActivityBPFunctionLibrary::GetPreviousTaggedDataAsDouble_Event(const FArcActivityTagStackChanged& Event,
+	bool& Found)
+{
+	if (auto Value = Event.PreviousValue.TryGet<double>())
+	{
+		Found = true;
+		return *Value;
+	}
+	Found = false;
+	return {};
+}
+
+FGameplayTag UArcActivityBPFunctionLibrary::GetPreviousTaggedDataAsGameplayTag_Event(
+	const FArcActivityTagStackChanged& Event, bool& Found)
+{
+	if (auto Value = Event.PreviousValue.TryGet<FGameplayTag>())
+	{
+		Found = true;
+		return *Value;
+	}
+	Found = false;
+	return {};
+}
+
+FVector UArcActivityBPFunctionLibrary::GetPreviousTaggedDataAsFVector_Event(const FArcActivityTagStackChanged& Event,
+	bool& Found)
+{
+	if (auto Value = Event.PreviousValue.TryGet<FVector>())
+	{
+		Found = true;
+		return *Value;
+	}
+	Found = false;
+	return {};
+}
+
+AActor* UArcActivityBPFunctionLibrary::GetPreviousTaggedDataAsActor_Event(const FArcActivityTagStackChanged& Event,
+	bool& Found)
+{
+	if (auto Value = Event.PreviousValue.TryGet<TWeakObjectPtr<AActor>>();
+		Value != nullptr && Value->IsValid())
+	{		
+		Found = true;
+		return Value->Get();			
+	}
+	Found = false;
+	return {};
+}
+
+void UArcActivityBPFunctionLibrary::SetIntPreviousTaggedData_Event(FArcActivityTagStackChanged& Event, int32 Value)
+{
+	Event.PreviousValue = FTaggedDataVariant(TInPlaceType<int32>{}, Value);
+}
+
+void UArcActivityBPFunctionLibrary::SetFloatPreviousTaggedData_Event(FArcActivityTagStackChanged& Event, float Value)
+{
+	Event.PreviousValue = FTaggedDataVariant(TInPlaceType<float>{}, Value);
+}
+
+void UArcActivityBPFunctionLibrary::SetDoublePreviousTaggedData_Event(FArcActivityTagStackChanged& Event, double Value)
+{
+	Event.PreviousValue = FTaggedDataVariant(TInPlaceType<double>{}, Value);
+}
+
+void UArcActivityBPFunctionLibrary::SetGameplayTagPreviousTaggedData_Event(FArcActivityTagStackChanged& Event,
+	FGameplayTag Value)
+{
+	Event.PreviousValue = FTaggedDataVariant(TInPlaceType<FGameplayTag>{}, Value);
+}
+
+void UArcActivityBPFunctionLibrary::SetFVectorPreviousTaggedData_Event(FArcActivityTagStackChanged& Event,
+	FVector Value)
+{
+	Event.PreviousValue = FTaggedDataVariant(TInPlaceType<FVector>{}, Value);
+}
+
+void UArcActivityBPFunctionLibrary::SetActorPreviousTaggedData_Event(FArcActivityTagStackChanged& Event, AActor* Value)
+{
+	Event.PreviousValue = FTaggedDataVariant(TInPlaceType<TWeakObjectPtr<AActor>>{}, Value);
+}
+
+bool UArcActivityBPFunctionLibrary::HasPreviousTaggedDataAsInt_Event(const FArcActivityTagStackChanged& Event)
+{
+	return Event.PreviousValue.IsType<int>();
+}
+
+bool UArcActivityBPFunctionLibrary::HasPreviousTaggedDataAsFloat_Event(const FArcActivityTagStackChanged& Event)
+{
+	return Event.PreviousValue.IsType<float>();
+}
+
+bool UArcActivityBPFunctionLibrary::HasPreviousTaggedDataAsDouble_Event(const FArcActivityTagStackChanged& Event)
+{
+	return Event.PreviousValue.IsType<double>();
+}
+
+bool UArcActivityBPFunctionLibrary::HasPreviousTaggedDataAsGameplayTag_Event(const FArcActivityTagStackChanged& Event)
+{
+	return Event.PreviousValue.IsType<FGameplayTag>();
+}
+
+bool UArcActivityBPFunctionLibrary::HasPreviousTaggedDataAsFVector_Event(const FArcActivityTagStackChanged& Event)
+{
+	return Event.PreviousValue.IsType<FVector>();
+}
+
+bool UArcActivityBPFunctionLibrary::HasPreviousTaggedDataAsActor_Event(const FArcActivityTagStackChanged& Event)
+{
+	return Event.PreviousValue.IsType<TWeakObjectPtr<AActor>>();
 }
 
