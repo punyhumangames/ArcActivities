@@ -11,170 +11,57 @@ UE_DEFINE_GAMEPLAY_TAG(FArcActivityPlayerChangedEventTag, TEXT("Activity.Event.P
 UE_DEFINE_GAMEPLAY_TAG(FArcActivityTagStackChangedEventTag, TEXT("Activity.Event.TagStackChanged"));
 
 
-
-FString FArcActivityTagStack::GetDebugString() const
+bool FArcActivityTaggedData::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 {
-	return FString::Printf(TEXT("%sx%d"), *Tag.ToString(), StackCount);
+	Tag.NetSerialize(Ar, Map, bOutSuccess);
+	Ar << Value;
+	bOutSuccess = true;
+	return true;
 }
 
-void FArcActivityTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
+FString FArcActivityTaggedData::GetDebugString() const
 {
-	if (!Tag.IsValid())
-	{
-		FFrame::KismetExecutionMessage(TEXT("An invalid tag was passed to AddStack"), ELogVerbosity::Warning);
-		return;
-	}
+	return TEXT("TODO");
+}
 
-	if (StackCount > 0)
+void FArcActivityTaggedDataContainer::RebuildTagToCountMap()
+{
+	TagToDataMap.Empty(TaggedData.Num());
+	for (const auto& [Tag, Data] : TagToDataMap)
 	{
-		for (FArcActivityTagStack& Stack : Stacks)
-		{
-			if (Stack.Tag == Tag)
-			{
-				const int32 NewCount = Stack.StackCount + StackCount;
-				Stack.StackCount = NewCount;
-				TagToCountMap[Tag] = NewCount;
-				MarkItemDirty(Stack);
-				return;
-			}
-		}
-
-		FArcActivityTagStack& NewStack = Stacks.Emplace_GetRef(Tag, StackCount);
-		MarkItemDirty(NewStack);
-		TagToCountMap.Add(Tag, StackCount);
-		OnTagCountChanged.Broadcast(Tag, StackCount, 0);
+		TagToDataMap.Add(Tag, Data);
 	}
 }
 
-void FArcActivityTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
-{
-	if (!Tag.IsValid())
-	{
-		FFrame::KismetExecutionMessage(TEXT("An invalid tag was passed to RemoveStack"), ELogVerbosity::Warning);
-		return;
-	}
-
-	//@TODO: Should we error if you try to remove a stack that doesn't exist or has a smaller count?
-	if (StackCount > 0)
-	{
-		for (auto It = Stacks.CreateIterator(); It; ++It)
-		{
-			FArcActivityTagStack& Stack = *It;
-			if (Stack.Tag == Tag)
-			{
-				if (Stack.StackCount <= StackCount)
-				{
-
-					OnTagCountChanged.Broadcast(Tag, 0, Stack.StackCount);
-					It.RemoveCurrent();
-					TagToCountMap.Remove(Tag);
-					MarkArrayDirty();
-				}
-				else
-				{
-					const int32 OldCount = Stack.StackCount;
-					const int32 NewCount = Stack.StackCount - StackCount;
-					Stack.StackCount = NewCount;
-					TagToCountMap[Tag] = NewCount;
-					MarkItemDirty(Stack);
-					OnTagCountChanged.Broadcast(Tag, NewCount,OldCount);
-				}
-				return;
-			}
-		}
-	}
-}
-
-void FArcActivityTagStackContainer::SetStack(FGameplayTag Tag, int32 StackCount)
-{
-	if (!Tag.IsValid())
-	{
-		FFrame::KismetExecutionMessage(TEXT("An invalid tag was passed to AddStack"), ELogVerbosity::Warning);
-		return;
-	}
-
-	if (StackCount > 0)
-	{
-		for (FArcActivityTagStack& Stack : Stacks)
-		{
-			if (Stack.Tag == Tag)
-			{
-				const int32 OldCount = Stack.StackCount;
-				Stack.StackCount = StackCount;
-				TagToCountMap[Tag] = StackCount;
-				MarkItemDirty(Stack);
-				OnTagCountChanged.Broadcast(Tag, StackCount, OldCount);
-				return;
-			}
-		}
-
-		FArcActivityTagStack& NewStack = Stacks.Emplace_GetRef(Tag, StackCount);
-		MarkItemDirty(NewStack);
-		TagToCountMap.Add(Tag, StackCount);
-		OnTagCountChanged.Broadcast(Tag, StackCount, 0);
-	}
-}
-
-void FArcActivityTagStackContainer::ClearStack(FGameplayTag Tag)
-{
-	if (!Tag.IsValid())
-	{
-		FFrame::KismetExecutionMessage(TEXT("An invalid tag was passed to Clear Stack"), ELogVerbosity::Warning);
-		return;
-	}
-
-
-	for (auto It = Stacks.CreateIterator(); It; ++It)
-	{
-		FArcActivityTagStack& Stack = *It;
-		if (Stack.Tag == Tag)
-		{
-			OnTagCountChanged.Broadcast(Tag, 0, Stack.StackCount);
-			It.RemoveCurrent();
-			TagToCountMap.Remove(Tag);
-			MarkArrayDirty();
-		}
-	}
-}
-
-void FArcActivityTagStackContainer::RebuildTagToCountMap()
-{
-	TagToCountMap.Empty(Stacks.Num());
-	for (const auto& Stack : Stacks)
-	{
-		TagToCountMap.Add(Stack.Tag, Stack.StackCount);
-	}
-}
-
-void FArcActivityTagStackContainer::PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize)
+void FArcActivityTaggedDataContainer::PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize)
 {
 	for (int32 Index : RemovedIndices)
 	{
-		const FGameplayTag Tag = Stacks[Index].Tag;
-		TagToCountMap.Remove(Tag);
-		OnTagCountChanged.Broadcast(Tag, 0, Stacks[Index].StackCount);
+		const FGameplayTag Tag = TaggedData[Index].Tag;
+		TagToDataMap.Remove(Tag);
+		OnTaggedDataChanged.Broadcast(Tag, TaggedData[Index].Value, true);
 	}
 }
 
-void FArcActivityTagStackContainer::PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize)
+void FArcActivityTaggedDataContainer::PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize)
 {
 	for (int32 Index : AddedIndices)
 	{
-		const FArcActivityTagStack& Stack = Stacks[Index];
-		TagToCountMap.Add(Stack.Tag, Stack.StackCount);
-		OnTagCountChanged.Broadcast(Stack.Tag, Stacks[Index].StackCount, 0);
+		const FArcActivityTaggedData& Data = TaggedData[Index];
+		TagToDataMap.Add(Data.Tag, Data.Value);
+		OnTaggedDataChanged.Broadcast(Data.Tag, FTaggedDataVariant{}, false);
 	}
 }
 
-void FArcActivityTagStackContainer::PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize)
+void FArcActivityTaggedDataContainer::PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize)
 {
 	for (int32 Index : ChangedIndices)
 	{
-		
-		const FArcActivityTagStack& Stack = Stacks[Index];
-		const int32 OldCount = TagToCountMap.FindRef(Stack.Tag);
-		TagToCountMap[Stack.Tag] = Stack.StackCount;
-		OnTagCountChanged.Broadcast(Stack.Tag, Stack.StackCount, OldCount);
+		const FArcActivityTaggedData& Data = TaggedData[Index];
+		FTaggedDataVariant OldData = TagToDataMap.FindRef(Data.Tag);
+		TagToDataMap[Data.Tag] = Data.Value;
+		OnTaggedDataChanged.Broadcast(Data.Tag, OldData, false);
+
 	}
 }
 

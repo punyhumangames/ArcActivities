@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "NativeGameplayTags.h"
 #include "Engine/NetSerialization.h"
+#include "Misc/TVariant.h"
 #include "Net/Serialization/FastArraySerializer.h"
 #include "ArcActivityTypes.generated.h"
 
@@ -164,6 +165,7 @@ struct FArcActivityStageChangedEventPayload
 	}
 };
 
+using FTaggedDataVariant = TVariant<int32, float, double, TWeakObjectPtr<AActor>, FVector, FGameplayTag>;	
 
 USTRUCT(BlueprintType)
 struct FArcActivityTagStackChanged
@@ -172,23 +174,25 @@ struct FArcActivityTagStackChanged
 
 	FArcActivityTagStackChanged() { }
 
-	FArcActivityTagStackChanged(UArcActivityInstance* InInstance, FGameplayTag InTag, int32 InCurrentValue, int32 InPreviousValue)
+	FArcActivityTagStackChanged(UArcActivityInstance* InInstance, FGameplayTag InTag, FTaggedDataVariant InPreviousValue, bool bInRemoved = false)
 		: Activity(InInstance)
 		, Tag(InTag)
-		, CurrentValue(InCurrentValue)
 		, PreviousValue(InPreviousValue)
+		, bRemoved(bInRemoved)
 	{
 
 	}
 
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		UArcActivityInstance* Activity;
+		TObjectPtr<UArcActivityInstance> Activity;
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
 		FGameplayTag Tag;
+	
+	FTaggedDataVariant PreviousValue;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		int32 CurrentValue = 0;
-	UPROPERTY(BlueprintReadOnly, Category = "Activity")
-		int32 PreviousValue = 0;
+	bool bRemoved = false;
+
 };
 
 UENUM(BlueprintType)
@@ -225,67 +229,133 @@ struct FArcActivityPlayerEventPayload
 	}
 };
 
+
 USTRUCT(BlueprintType)
-struct FArcActivityTagStack : public FFastArraySerializerItem
+struct FArcActivityTaggedData : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
-	FArcActivityTagStack()
+	FArcActivityTaggedData()
 	{}
 
-	FArcActivityTagStack(FGameplayTag InTag, int32 InStackCount)
+	template<typename T>
+	FArcActivityTaggedData(FGameplayTag InTag, T InValue)
 		: Tag(InTag)
-		, StackCount(InStackCount)
+		, Value(TInPlaceType<T>{}, InValue)
 	{
 	}
+
+	FArcActivityTaggedData(FGameplayTag InTag, FTaggedDataVariant InData)
+		: Tag(InTag)
+		, Value(InData)
+	{
+		
+	}
+
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
 	FString GetDebugString() const;
 
 private:
-	friend struct FArcActivityTagStackContainer;
+	friend struct FArcActivityTaggedDataContainer;
 
 	UPROPERTY()
-		FGameplayTag Tag;
+	FGameplayTag Tag;
 
-	UPROPERTY()
-		int32 StackCount = 0;
+	FTaggedDataVariant Value;
 };
 
-DECLARE_MULTICAST_DELEGATE_ThreeParams(FArcActivityTagStackContainerChanged, FGameplayTag, int32, int32)
+template<>
+struct TStructOpsTypeTraits<FArcActivityTaggedData> : public TStructOpsTypeTraitsBase2<FArcActivityTaggedData>
+{
+	enum
+	{
+		WithNetSerializer = true,
+	};
+};
 
 USTRUCT(BlueprintType)
-struct FArcActivityTagStackContainer : public FFastArraySerializer
+struct FArcActivityTaggedDataContainer : public FFastArraySerializer
 {
 	GENERATED_BODY()
 
-	FArcActivityTagStackContainer()
+	FArcActivityTaggedDataContainer()
 	{
 	}
 
 public:
-	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
-	void AddStack(FGameplayTag Tag, int32 StackCount);
-
-	// Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
-	void RemoveStack(FGameplayTag Tag, int32 StackCount);
-
-	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
-	void SetStack(FGameplayTag Tag, int32 StackCount);
-
-	void ClearStack (FGameplayTag Tag);
-
-	// Returns the stack count of the specified tag (or 0 if the tag is not present)
-	int32 GetStackCount(FGameplayTag Tag) const
+	template<typename T>
+	void SetTaggedData(FGameplayTag Tag, T Value)
 	{
-		return TagToCountMap.FindRef(Tag);
+		if (auto* Data = TaggedData.FindByPredicate([Tag](const FArcActivityTaggedData& Data)
+		{
+			return Data.Tag == Tag;
+		}))
+		{
+			FTaggedDataVariant OldValue = Data->Value;
+			Data->Value = FTaggedDataVariant(TInPlaceType<T>{}, Value);
+			MarkItemDirty(*Data);
+			TagToDataMap.FindOrAdd(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value));
+			OnTaggedDataChanged.Broadcast(Tag, OldValue, false);
+			
+		}
+		else
+		{
+			FArcActivityTaggedData&  EmplacedData = TaggedData.Add_GetRef(FArcActivityTaggedData(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value)));
+			MarkItemDirty(EmplacedData);
+			TagToDataMap.Add(Tag, FTaggedDataVariant(TInPlaceType<T>{}, Value));
+			OnTaggedDataChanged.Broadcast(Tag, FTaggedDataVariant(), false);
+		}
 	}
 
-	// Returns true if there is at least one stack of the specified tag
-	bool ContainsTag(FGameplayTag Tag) const
+	void ClearTaggedData(FGameplayTag Tag)
 	{
-		return TagToCountMap.Contains(Tag);
+		for (auto Itr = TagToDataMap.CreateIterator(); Itr; ++Itr)
+		{
+			if (Tag == Itr->Key)
+			{
+				FTaggedDataVariant OldValue = Itr->Value;				
+				OnTaggedDataChanged.Broadcast(Tag, OldValue, true);
+				Itr.RemoveCurrent();
+				TagToDataMap.Remove(Tag);
+				MarkArrayDirty();
+				return;
+			}
+		}
 	}
 
+	template<typename T>
+	TOptional<T> GetTaggedData(FGameplayTag Tag) const
+	{
+		if (auto* Data = TaggedData.FindByPredicate([Tag](const FArcActivityTaggedData& Data)
+		{
+			return Data.Tag == Tag;
+		}))
+		{
+			if (Data->Value.template IsType<T>())
+			{
+				return Data->Value.template Get<T>();
+			}
+		}
+
+		return {};
+	}
+
+	bool HasAnyTaggedData(FGameplayTag Tag) const
+	{
+		return TagToDataMap.Contains(Tag);
+	}
+
+	template<typename T>
+	bool HasTaggedData(FGameplayTag Tag) const 
+	{
+		if (auto* Data = TagToDataMap.Find(Tag))
+		{
+			return Data->IsType<T>();
+		}
+		return false;
+	}
+	
 	void RebuildTagToCountMap();
 
 	//~FFastArraySerializer contract
@@ -294,33 +364,33 @@ public:
 	void PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize);
 	//~End of FFastArraySerializer contract
 
-	FArcActivityTagStackContainerChanged OnTagCountChanged;
+	DECLARE_MULTICAST_DELEGATE_ThreeParams(FArcActivityTaggedDataChangedDelegate, FGameplayTag /* Tag */, FTaggedDataVariant /* OldValue */, bool /* bRemoved */);
+	FArcActivityTaggedDataChangedDelegate OnTaggedDataChanged;
 
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 	{
-		return FFastArraySerializer::FastArrayDeltaSerialize<FArcActivityTagStack, FArcActivityTagStackContainer>(Stacks, DeltaParms, *this);
+		return FFastArraySerializer::FastArrayDeltaSerialize<FArcActivityTaggedData, FArcActivityTaggedDataContainer>(TaggedData, DeltaParms, *this);
 	}
 
-	ARC_ACT_FASTARRAYSERIALIZER_TARRAY_ACCESSORS(Stacks)
+	ARC_ACT_FASTARRAYSERIALIZER_TARRAY_ACCESSORS(TaggedData)
 
 private:
 	// Replicated list of gameplay tag stacks
 	UPROPERTY()
-	TArray<FArcActivityTagStack> Stacks;
+	TArray<FArcActivityTaggedData> TaggedData;
 
 	// Accelerated list of tag stacks for queries
-	TMap<FGameplayTag, int32> TagToCountMap;
+	TMap<FGameplayTag, FTaggedDataVariant> TagToDataMap;
 };
 
 template<>
-struct TStructOpsTypeTraits<FArcActivityTagStackContainer> : public TStructOpsTypeTraitsBase2<FArcActivityTagStackContainer>
+struct TStructOpsTypeTraits<FArcActivityTaggedDataContainer> : public TStructOpsTypeTraitsBase2<FArcActivityTaggedDataContainer>
 {
 	enum
 	{
 		WithNetDeltaSerializer = true,
 	};
 };
-
 
 
 USTRUCT()

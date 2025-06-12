@@ -31,10 +31,11 @@ void UArcActivityInstance::GetOwnedGameplayTags(FGameplayTagContainer& TagContai
 
 UArcActivityInstance::UArcActivityInstance()
 	: Super()
+	, ActivityState(EArcActivitySuccessState::None)
 	, PreviousStageCompletion(EArcActivitySuccessState::None)
 	, PlayersInActivty(this)
 {
-	TagStacks.OnTagCountChanged.AddUObject(this, &ThisClass::OnTagCountChanged);
+	TaggedData.OnTaggedDataChanged.AddUObject(this, &ThisClass::OnTagDataChanged);
 }
 
 UWorld* UArcActivityInstance::GetWorld() const
@@ -67,7 +68,7 @@ void UArcActivityInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	DOREPLIFETIME(UArcActivityInstance, PlayersInActivty);
 	DOREPLIFETIME(UArcActivityInstance, ActivityState);
 	DOREPLIFETIME(UArcActivityInstance, PreviousStageCompletion);
-	DOREPLIFETIME(UArcActivityInstance, TagStacks);
+	DOREPLIFETIME(UArcActivityInstance, TaggedData);
 }
 
 bool UArcActivityInstance::IsActive() const
@@ -390,39 +391,9 @@ TArray<UArcActivityPlayerComponent*> UArcActivityInstance::GetPlayersInActivity(
 	return Components;
 }
 
-void UArcActivityInstance::AddStatTagStack(FGameplayTag Tag, int32 StackCount)
+void UArcActivityInstance::OnTagDataChanged(FGameplayTag Tag, FTaggedDataVariant PreviousValue, bool bRemoved) const
 {
-	TagStacks.AddStack(Tag, StackCount);
-}
-
-void UArcActivityInstance::RemoveStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	TagStacks.RemoveStack(Tag, StackCount);
-}
-
-void UArcActivityInstance::SetStatTagStack(FGameplayTag Tag, int32 StackCount)
-{
-	TagStacks.SetStack(Tag, StackCount);
-}
-
-int32 UArcActivityInstance::GetStatTagStackCount(FGameplayTag Tag) const
-{
-	return TagStacks.GetStackCount(Tag);
-}
-
-bool UArcActivityInstance::HasStatTag(FGameplayTag Tag) const
-{
-	return TagStacks.ContainsTag(Tag);
-}
-
-void UArcActivityInstance::ClearStatTag(FGameplayTag Tag)
-{
-	TagStacks.ClearStack(Tag);
-}
-
-void UArcActivityInstance::OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const
-{
-	RaiseEvent(FArcActivityTagStackChangedEventTag, FArcActivityTagStackChanged( const_cast<UArcActivityInstance*>(this), Tag, CurrentValue, PreviousValue ));
+	RaiseEvent(FArcActivityTagStackChangedEventTag, FArcActivityTagStackChanged( const_cast<UArcActivityInstance*>(this), Tag, PreviousValue, bRemoved ));
 }
 
 bool UArcActivityInstance::InitActivityGraph(UArcActivity* Graph, const FGameplayTagContainer& Tags)

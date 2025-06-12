@@ -89,32 +89,40 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 	TArray<UArcActivityPlayerComponent*> GetPlayersInActivity() const;
 
-	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Arc|Activity")
-	void AddStatTagStack(FGameplayTag Tag, int32 StackCount);
 
-	// Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Arc|Activity")
-	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount);
+	template<typename T>
+	void SetTaggedData(FGameplayTag Tag, T Value) 
+	{
+		TaggedData.SetTaggedData(Tag, Value);
+	}
 
-	// Sets a stat tag stack
-	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Arc|Activity")
-	void SetStatTagStack(FGameplayTag Tag, int32 StackCount);
+	void ClearTaggedData(FGameplayTag Tag) 
+	{
+		TaggedData.ClearTaggedData(Tag);
+	}
 
-	// Returns the stack count of the specified tag (or 0 if the tag is not present)
-	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
-	int32 GetStatTagStackCount(FGameplayTag Tag) const;
+	template<typename T>
+	TOptional<T> GetTaggedData(FGameplayTag Tag) const
+	{
+		return TaggedData.GetTaggedData<T>(Tag);
+	}
 
-	// Returns true if there is at least one stack of the specified tag
-	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
-	bool HasStatTag(FGameplayTag Tag) const;
+	bool HasAnyTaggedData(FGameplayTag Tag) const
+	{
+		return TaggedData.HasAnyTaggedData(Tag);
+	}
 
-	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
-	void ClearStatTag(FGameplayTag Tag);
+	template<typename T>
+	bool HasTaggedData(FGameplayTag Tag) const
+	{
+		return TaggedData.HasTaggedData<T>(Tag);
+	}
 
+
+	
 
 protected:
-	void OnTagCountChanged(FGameplayTag Tag, int32 CurrentValue, int32 PreviousValue) const;
+	void OnTagDataChanged(FGameplayTag Tag, FTaggedDataVariant PreviousValue, bool bRemoved) const;
 
 	template<typename T>
 	void RaiseEvent(FGameplayTag Tag, const T& EventStruct) const;
@@ -151,7 +159,7 @@ private:
 	TObjectPtr<UArcActivityStage> CurrentStage;
 
 	UPROPERTY(Replicated)
-	FArcActivityTagStackContainer TagStacks;
+	FArcActivityTaggedDataContainer TaggedData;
 	
 	UPROPERTY(Replicated)
 	FGameplayTagContainer ActivityTags;
