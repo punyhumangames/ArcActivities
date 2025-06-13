@@ -137,7 +137,7 @@ UArcActivityPlayerComponent* UArcActivityWorldSubsystem::RegisterPlayerForActivi
    
 }
 
-UArcActivityInstance* UArcActivityWorldSubsystem::StartActivity(UArcActivity* Activity, FGameplayTagContainer Tags)
+UArcActivityInstance* UArcActivityWorldSubsystem::StartActivity(UArcActivity* Activity, const FArcActivityParameters& Params)
 {
 	UObject* InstanceOuter = this;
 	if(IsValid(ReplicationProxy))
@@ -145,11 +145,13 @@ UArcActivityInstance* UArcActivityWorldSubsystem::StartActivity(UArcActivity* Ac
 		InstanceOuter = ReplicationProxy;
 	}
 
-    UArcActivityInstance* Instance = NewObject<UArcActivityInstance>(InstanceOuter); //TODO: for replication, make this outer some replicated 
-    if (IsValid(Instance))
+   
+    if (UArcActivityInstance* Instance = NewObject<UArcActivityInstance>(InstanceOuter))
     {
         Instance->World = GetWorld();
-		if (Instance->InitActivityGraph(Activity, Tags))
+		Instance->ImportTaggedData(Params.TaggedData);
+    	
+		if (Instance->InitActivityGraph(Activity, Params.Tags))
 		{
 			Instance->OnActivityEnded.AddUObject(this, &ThisClass::OnActivityEndedEvent);
 			ActivityInstances.AddUnique(Instance);

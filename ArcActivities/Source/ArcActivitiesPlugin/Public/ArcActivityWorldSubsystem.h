@@ -112,7 +112,7 @@ public:
 	UArcActivityPlayerComponent* RegisterPlayerForActivities(APlayerState* PlayerState);
 
 	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
-	UArcActivityInstance* StartActivity(UArcActivity* Activity, FGameplayTagContainer Tags);
+	UArcActivityInstance* StartActivity(UArcActivity* Activity, const FArcActivityParameters& Params);
 
 	UFUNCTION(BlueprintCallable, Category = "Arc|Activity")
 		bool IsActivityActive(UArcActivityInstance* Activity) const;

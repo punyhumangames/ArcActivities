@@ -118,6 +118,7 @@ public:
 		return TaggedData.HasTaggedData<T>(Tag);
 	}
 
+	void ImportTaggedData(const TMap<FGameplayTag, FTaggedDataVariant>& DataMap);
 
 	
 

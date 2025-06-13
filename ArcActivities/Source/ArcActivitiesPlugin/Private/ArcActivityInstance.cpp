@@ -391,6 +391,11 @@ TArray<UArcActivityPlayerComponent*> UArcActivityInstance::GetPlayersInActivity(
 	return Components;
 }
 
+void UArcActivityInstance::ImportTaggedData(const TMap<FGameplayTag, FTaggedDataVariant>& DataMap)
+{
+	TaggedData.ImportTaggedData(DataMap);
+}
+
 void UArcActivityInstance::OnTagDataChanged(FGameplayTag Tag, FTaggedDataVariant PreviousValue, bool bRemoved) const
 {
 	RaiseEvent(FArcActivityTagStackChangedEventTag, FArcActivityTagStackChanged( const_cast<UArcActivityInstance*>(this), Tag, PreviousValue, bRemoved ));

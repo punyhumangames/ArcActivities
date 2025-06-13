@@ -284,6 +284,20 @@ struct FArcActivityTaggedDataContainer : public FFastArraySerializer
 	}
 
 public:
+	void ImportTaggedData(const TMap<FGameplayTag, FTaggedDataVariant>& DataMap)
+	{
+		TaggedData.Empty(DataMap.Num());
+		TagToDataMap.Empty(DataMap.Num());
+
+		for (const auto& [Tag, Value] : DataMap)
+		{
+			FArcActivityTaggedData& EmplacedData = TaggedData.Add_GetRef(FArcActivityTaggedData(Tag, Value));
+			MarkItemDirty(EmplacedData);
+			TagToDataMap.Add(Tag, Value);
+			OnTaggedDataChanged.Broadcast(Tag, FTaggedDataVariant(), false);
+		}
+	}
+	
 	template<typename T>
 	void SetTaggedData(FGameplayTag Tag, T Value)
 	{
@@ -471,6 +485,17 @@ struct TStructOpsTypeTraits< FArcActivityPlayerArray > : public TStructOpsTypeTr
 	{
 		WithNetDeltaSerializer = true,
 	};
+};
+
+USTRUCT(BlueprintType)
+struct FArcActivityParameters
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Activity")
+	FGameplayTagContainer Tags;
+
+	TMap<FGameplayTag, FTaggedDataVariant> TaggedData;
 };
 
 
